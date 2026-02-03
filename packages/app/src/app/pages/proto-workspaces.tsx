@@ -153,7 +153,7 @@ export default function ProtoWorkspacesView() {
               <div class="text-center space-y-4">
                 <div class="flex items-center justify-center gap-3 mb-6">
                   <OpenWorkLogo size={48} />
-                  <h2 class="text-3xl font-bold tracking-tight text-gray-12">OpenWork</h2>
+                  <h2 class="text-3xl font-bold tracking-tight text-gray-12">CMBCowork</h2>
                 </div>
                 <h3 class="text-xl text-gray-11">Choose how to connect</h3>
               </div>
@@ -219,7 +219,7 @@ export default function ProtoWorkspacesView() {
               <div>
                 <div class="flex items-center gap-3 mb-10 px-2">
                   <OpenWorkLogo size={28} />
-                  <span class="font-bold text-lg tracking-tight">OpenWork</span>
+                  <span class="font-bold text-lg tracking-tight">CMBCowork</span>
                 </div>
                 <nav class="space-y-1">
                   <For each={navItems}>

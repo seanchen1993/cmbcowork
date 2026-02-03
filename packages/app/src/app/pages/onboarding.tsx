@@ -516,7 +516,7 @@ export default function OnboardingView(props: OnboardingViewProps) {
                 <div class="">
                   <OpenWorkLogo size={48} />
                 </div>
-                <h1 class="text-3xl font-bold tracking-tight text-gray-12">OpenWork</h1>
+                <h1 class="text-3xl font-bold tracking-tight text-gray-12">CMBCowork</h1>
               </div>
               <h2 class="text-xl text-gray-11">{translate("onboarding.welcome_title")}</h2>
             </div>

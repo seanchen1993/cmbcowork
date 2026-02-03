@@ -327,7 +327,7 @@ function OwpenbotSettings(props: {
         if (props.openworkServerStatus === "disconnected") {
           setTelegramFeedback(
             "error",
-            "OpenWork server is not connected.",
+            "CMBCowork server is not connected.",
             "Add a server URL and token, then try again.",
           );
           debugOwpenbot("save-token:remote-missing-client", {
@@ -1704,7 +1704,7 @@ export default function SettingsView(props: SettingsViewProps) {
                 <div class="bg-gray-2/30 border border-gray-6/50 rounded-2xl p-5 space-y-4">
                   <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                     <div>
-                      <div class="text-sm font-medium text-gray-12">OpenWork server sharing</div>
+                      <div class="text-sm font-medium text-gray-12">CMBCowork server sharing</div>
                       <div class="text-xs text-gray-10">
                         Share these details with a trusted device. Keep the server on the same network for the fastest setup.
                       </div>
@@ -1717,7 +1717,7 @@ export default function SettingsView(props: SettingsViewProps) {
                   <div class="grid gap-3">
                     <div class="flex items-center justify-between bg-gray-1 p-3 rounded-xl border border-gray-6 gap-3">
                       <div class="min-w-0">
-                        <div class="text-xs font-medium text-gray-11">OpenWork Server URL</div>
+                        <div class="text-xs font-medium text-gray-11">CMBCowork Server URL</div>
                         <div class="text-xs text-gray-7 font-mono truncate">
                           {hostConnectUrl() || "Starting server…"}
                         </div>
@@ -1812,7 +1812,7 @@ export default function SettingsView(props: SettingsViewProps) {
               <div class="bg-gray-2/30 border border-gray-6/50 rounded-2xl p-5 space-y-4">
                 <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                   <div>
-                    <div class="text-sm font-medium text-gray-12">OpenWork server</div>
+                    <div class="text-sm font-medium text-gray-12">CMBCowork server</div>
                     <div class="text-xs text-gray-10">
                       Connect to an OpenWork server. Use the URL and access token from your server admin.
                     </div>
@@ -1824,7 +1824,7 @@ export default function SettingsView(props: SettingsViewProps) {
 
                 <div class="grid gap-3">
                   <TextInput
-                    label="OpenWork server URL"
+                    label="CMBCowork server URL"
                     value={openworkUrl()}
                     onInput={(event) => setOpenworkUrl(event.currentTarget.value)}
                     placeholder="http://127.0.0.1:8787"
@@ -2110,7 +2110,7 @@ export default function SettingsView(props: SettingsViewProps) {
                     <div class="bg-gray-1 p-4 rounded-xl border border-gray-6 space-y-3">
                       <div class="flex items-center justify-between gap-3">
                         <div>
-                          <div class="text-sm font-medium text-gray-12">OpenWork server</div>
+                          <div class="text-sm font-medium text-gray-12">CMBCowork server</div>
                           <div class="text-xs text-gray-10">Config and approvals sidecar.</div>
                         </div>
                         <div class={`text-xs px-2 py-1 rounded-full border ${openworkStatusStyle()}`}>
@@ -2203,7 +2203,7 @@ export default function SettingsView(props: SettingsViewProps) {
 
                   <div class="bg-gray-1 p-4 rounded-xl border border-gray-6 space-y-3">
                     <div class="flex items-center justify-between gap-3">
-                      <div class="text-sm font-medium text-gray-12">OpenWork server diagnostics</div>
+                      <div class="text-sm font-medium text-gray-12">CMBCowork server diagnostics</div>
                       <div class="text-[11px] text-gray-8 font-mono truncate">
                         {props.openworkServerDiagnostics?.version ?? "—"}
                       </div>
@@ -2231,7 +2231,7 @@ export default function SettingsView(props: SettingsViewProps) {
 
                   <div class="bg-gray-1 p-4 rounded-xl border border-gray-6 space-y-3">
                     <div class="flex items-center justify-between gap-3">
-                      <div class="text-sm font-medium text-gray-12">OpenWork server capabilities</div>
+                      <div class="text-sm font-medium text-gray-12">CMBCowork server capabilities</div>
                       <div class="text-[11px] text-gray-8 font-mono truncate">
                         {props.openworkServerWorkspaceId ? `Workspace ${props.openworkServerWorkspaceId}` : "Workspace unresolved"}
                       </div>

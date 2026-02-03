@@ -446,7 +446,7 @@ export default function DashboardView(props: DashboardViewProps) {
             <div class="">
               <OpenWorkLogo size={32} />
             </div>
-            <span class="font-bold text-lg tracking-tight">OpenWork</span>
+            <span class="font-bold text-lg tracking-tight">CMBCowork</span>
           </div>
 
           <nav class="space-y-1">
@@ -478,7 +478,7 @@ export default function DashboardView(props: DashboardViewProps) {
             }
           >
             <div class="text-[11px] text-gray-9 px-1">
-              OpenWork server is offline — remote tasks still run.
+              CMBCowork server is offline — remote tasks still run.
             </div>
           </Show>
 
@@ -580,7 +580,7 @@ export default function DashboardView(props: DashboardViewProps) {
                         What should we do today?
                       </h2>
                       <p class="text-gray-11">
-                        Describe an outcome. OpenWork will run it and keep an
+                        Describe an outcome. CMBCowork will run it and keep an
                         audit trail.
                       </p>
                     </div>

@@ -1952,7 +1952,7 @@ export default function App() {
           if (canReloadLocalEngine()) {
             return workspaceStore.reloadWorkspaceEngine();
           }
-          throw new Error("OpenWork server reload endpoint not found. Update the host to enable reloads.");
+          throw new Error("CMBCowork server reload endpoint not found. Update the host to enable reloads.");
         }
         throw error;
       }
@@ -2308,10 +2308,10 @@ export default function App() {
         setScheduledJobs([]);
         const status =
           openworkServerStatus() === "disconnected"
-            ? "OpenWork server unavailable. Connect to sync scheduled tasks."
+            ? "CMBCowork server unavailable. Connect to sync scheduled tasks."
             : openworkServerStatus() === "limited"
-              ? "OpenWork server needs a token to load scheduled tasks."
-              : "OpenWork server not ready.";
+              ? "CMBCowork server needs a token to load scheduled tasks."
+              : "CMBCowork server not ready.";
         setScheduledJobsStatus(status);
         return;
       }
@@ -2366,7 +2366,7 @@ export default function App() {
     if (scheduledJobsSource() === "remote") {
       const scheduler = resolveOpenworkScheduler();
       if (!scheduler) {
-        throw new Error("OpenWork server unavailable. Connect to sync scheduled tasks.");
+        throw new Error("CMBCowork server unavailable. Connect to sync scheduled tasks.");
       }
       const response = await scheduler.client.deleteScheduledJob(scheduler.workspaceId, name);
       setScheduledJobs((current) => current.filter((entry) => entry.slug !== response.job.slug));
@@ -2715,7 +2715,7 @@ export default function App() {
 
     if (isRemoteWorkspace) {
       if (!canUseOpenworkServer) {
-        setMcpStatus("OpenWork server unavailable. MCP config is read-only.");
+        setMcpStatus("CMBCowork server unavailable. MCP config is read-only.");
         setMcpServers([]);
         setMcpStatuses({});
         return;
@@ -2868,7 +2868,7 @@ export default function App() {
 
     if (isRemoteWorkspace && !canUseOpenworkServer) {
       console.log("[connectMcp] ❌ openwork server unavailable");
-      setMcpStatus("OpenWork server unavailable. MCP config is read-only.");
+      setMcpStatus("CMBCowork server unavailable. MCP config is read-only.");
       return;
     }
 
@@ -3860,21 +3860,21 @@ export default function App() {
     const canUseGlobalPluginScope = !isRemoteWorkspace && isTauriRuntime();
     const skillsAccessHint = isRemoteWorkspace
       ? openworkStatus === "disconnected"
-        ? "OpenWork server unavailable. Connect to manage skills."
+        ? "CMBCowork server unavailable. Connect to manage skills."
         : openworkStatus === "limited"
-          ? "OpenWork server needs a token to manage skills."
+          ? "CMBCowork server needs a token to manage skills."
           : openworkServerCanWriteSkills()
             ? null
-            : "OpenWork server is read-only for skills."
+            : "CMBCowork server is read-only for skills."
       : null;
     const pluginsAccessHint = isRemoteWorkspace
       ? openworkStatus === "disconnected"
-        ? "OpenWork server unavailable. Plugins are read-only."
+        ? "CMBCowork server unavailable. Plugins are read-only."
         : openworkStatus === "limited"
-          ? "OpenWork server needs a token to edit plugins."
+          ? "CMBCowork server needs a token to edit plugins."
           : openworkServerCanWritePlugins()
             ? null
-            : "OpenWork server is read-only for plugins."
+            : "CMBCowork server is read-only for plugins."
       : null;
 
     return {

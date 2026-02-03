@@ -1037,7 +1037,7 @@ export default function Composer(props: ComposerProps) {
                   <div class="relative">
                     <Show when={!props.prompt.trim() && !attachments().length}>
                       <div class="absolute left-0 top-0 text-gray-6 text-[15px] leading-relaxed pointer-events-none">
-                        Ask OpenWork...
+                        Ask CMBCowork...
                       </div>
                     </Show>
                     <div

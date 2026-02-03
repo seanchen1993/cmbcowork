@@ -67,7 +67,7 @@ export default function ScheduledTasksView(props: ScheduledTasksViewProps) {
   });
   const supportNote = createMemo(() => {
     if (props.source === "remote") {
-      return props.sourceReady ? null : "OpenWork server unavailable. Connect to sync scheduled tasks.";
+      return props.sourceReady ? null : "CMBCowork server unavailable. Connect to sync scheduled tasks.";
     }
     if (!isTauriRuntime()) return "Scheduled tasks require the desktop app.";
     if (props.isWindows) return "Scheduler is not supported on Windows yet.";
@@ -81,12 +81,12 @@ export default function ScheduledTasksView(props: ScheduledTasksViewProps) {
   const sourceLabel = createMemo(() =>
     props.source === "remote" ? "From OpenWork server" : "From local scheduler"
   );
-  const schedulerLabel = createMemo(() => (props.source === "remote" ? "OpenWork server" : "Local"));
+  const schedulerLabel = createMemo(() => (props.source === "remote" ? "CMBCowork server" : "Local"));
   const schedulerHint = createMemo(() =>
     props.source === "remote" ? "Remote instance" : "Launchd or systemd"
   );
   const schedulerUnavailableHint = createMemo(() =>
-    props.source === "remote" ? "OpenWork server unavailable" : "Desktop-only"
+    props.source === "remote" ? "CMBCowork server unavailable" : "Desktop-only"
   );
   const deleteDescription = createMemo(() =>
     props.source === "remote"
