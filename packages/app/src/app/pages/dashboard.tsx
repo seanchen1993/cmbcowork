@@ -258,21 +258,21 @@ export default function DashboardView(props: DashboardViewProps) {
   const title = createMemo(() => {
     switch (props.tab) {
       case "sessions":
-        return "Sessions";
+        return "会话";
       case "scheduled":
-        return "Scheduled Tasks";
+        return "定时任务";
       case "commands":
-        return "Commands";
+        return "命令";
       case "skills":
-        return "Skills";
+        return "技能";
       case "plugins":
-        return "Plugins";
+        return "插件";
       case "mcp":
-        return "MCPs";
+        return "MCP服务";
       case "settings":
-        return "Settings";
+        return "设置";
       default:
-        return "Dashboard";
+        return "控制台";
     }
   });
 
@@ -450,18 +450,18 @@ export default function DashboardView(props: DashboardViewProps) {
           </div>
 
           <nav class="space-y-1">
-            {navItem("home", "Dashboard", <Command size={18} />)}
-            {navItem("sessions", "Sessions", <Play size={18} />)}
-            {navItem("scheduled", "Scheduled Tasks", <Calendar size={18} />)}
-            {navItem("commands", "Commands", <Terminal size={18} />)}
-            {navItem("skills", "Skills", <Package size={18} />)}
-            {navItem("plugins", "Plugins", <Cpu size={18} />)}
+            {navItem("home", "控制台", <Command size={18} />)}
+            {navItem("sessions", "会话", <Play size={18} />)}
+            {navItem("scheduled", "定时任务", <Calendar size={18} />)}
+            {navItem("commands", "命令", <Terminal size={18} />)}
+            {navItem("skills", "技能", <Package size={18} />)}
+            {navItem("plugins", "插件", <Cpu size={18} />)}
             {navItem(
               "mcp",
               <span class="inline-flex items-center gap-2">
-                MCPs
+                MCP服务
                 <span class="text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full bg-amber-7/20 text-amber-12">
-                  Alpha
+                  测试版
                 </span>
               </span>,
               <Server size={18} />,
@@ -478,7 +478,7 @@ export default function DashboardView(props: DashboardViewProps) {
             }
           >
             <div class="text-[11px] text-gray-9 px-1">
-              CMBCowork server is offline — remote tasks still run.
+              服务器离线 - 远程任务仍在运行
             </div>
           </Show>
 
@@ -489,7 +489,7 @@ export default function DashboardView(props: DashboardViewProps) {
               disabled={props.busy}
               class="w-full"
             >
-              Connect folder
+              连接文件夹
             </Button>
           </Show>
         </div>
@@ -523,11 +523,11 @@ export default function DashboardView(props: DashboardViewProps) {
                 disabled={!canExportWorkspace() || props.exportWorkspaceBusy}
                 title={
                   !canExportWorkspace()
-                    ? "Export is only available for local workspaces"
-                    : "Export workspace config"
+                    ? "导出仅适用于本地工作区"
+                    : "导出工作区配置"
                 }
               >
-                Share config
+                分享配置
               </Button>
               <Button
                 onPointerDown={(e) => {
@@ -538,10 +538,10 @@ export default function DashboardView(props: DashboardViewProps) {
                   props.createSessionAndOpen();
                 }}
                 disabled={props.newTaskDisabled}
-                title={props.newTaskDisabled ? props.busyHint ?? "Busy" : ""}
+                title={props.newTaskDisabled ? props.busyHint ?? "忙碌" : ""}
               >
                 <Play size={16} />
-                New Task
+                新建任务
               </Button>
             </Show>
 
@@ -563,7 +563,7 @@ export default function DashboardView(props: DashboardViewProps) {
                 disabled={props.busy}
               >
                 <Plus size={16} />
-                New
+                新建
               </Button>
             </Show>
           </div>
@@ -577,11 +577,10 @@ export default function DashboardView(props: DashboardViewProps) {
                   <div class="bg-gray-1 rounded-[22px] p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
                     <div class="space-y-2 text-center md:text-left">
                       <h2 class="text-2xl font-semibold text-gray-12">
-                        What should we do today?
+                        今天想做些什么？
                       </h2>
                       <p class="text-gray-11">
-                        Describe an outcome. CMBCowork will run it and keep an
-                        audit trail.
+                        描述一个目标，CMBCowork 将执行并保留记录。
                       </p>
                     </div>
                     <div class="w-full md:w-[360px]">
@@ -595,9 +594,9 @@ export default function DashboardView(props: DashboardViewProps) {
                               startTask();
                             }
                           }}
-                          placeholder="Draft a task to run..."
+                          placeholder="输入要执行的任务..."
                           class="flex-1 bg-transparent border-none p-0 text-sm text-gray-12 placeholder-gray-7 focus:ring-0"
-                          aria-label="Describe a task"
+                          aria-label="描述任务"
                           disabled={props.newTaskDisabled}
                         />
                         <button
@@ -606,14 +605,14 @@ export default function DashboardView(props: DashboardViewProps) {
                           disabled={!canCreateTask()}
                           class="rounded-xl bg-gray-12 px-3 py-1.5 text-xs font-semibold text-gray-1 shadow-md transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-40 disabled:hover:scale-100"
                           title={
-                            props.newTaskDisabled ? props.busyHint ?? "Busy" : ""
+                            props.newTaskDisabled ? props.busyHint ?? "忙碌" : ""
                           }
                         >
-                          Run
+                          执行
                         </button>
                       </div>
                       <div class="mt-2 text-[11px] text-gray-9 text-center md:text-left">
-                        Press Enter to start a new session.
+                        按回车键开始新会话
                       </div>
                     </div>
                   </div>
@@ -623,13 +622,13 @@ export default function DashboardView(props: DashboardViewProps) {
               <section>
                 <div class="flex items-center justify-between mb-4">
                   <h3 class="text-sm font-medium text-gray-11 uppercase tracking-wider">
-                    Quick Start Commands
+                    快捷命令
                   </h3>
                   <button
                     class="text-sm text-gray-10 hover:text-gray-12"
                     onClick={() => props.setTab("commands")}
                   >
-                    View all
+                    查看全部
                   </button>
                 </div>
 
@@ -637,7 +636,7 @@ export default function DashboardView(props: DashboardViewProps) {
                   when={quickCommands().length}
                   fallback={
                     <div class="bg-gray-2/30 border border-gray-6/50 rounded-2xl p-6 text-sm text-gray-10">
-                      No commands yet. Starter commands will appear here.
+                      暂无命令，快捷命令将显示在此处。
                     </div>
                   }
                 >
@@ -653,7 +652,7 @@ export default function DashboardView(props: DashboardViewProps) {
                           </div>
                           <h4 class="font-medium text-gray-12 mb-1">/{command.name}</h4>
                           <p class="text-sm text-gray-10">
-                            {command.description || "Run a saved command"}
+                            {command.description || "运行已保存的命令"}
                           </p>
                         </button>
                       )}
@@ -665,7 +664,7 @@ export default function DashboardView(props: DashboardViewProps) {
               <section>
                 <div class="flex items-center justify-between mb-4">
                   <h3 class="text-sm font-medium text-gray-11 uppercase tracking-wider">
-                    Workspaces
+                    工作区
                   </h3>
                   <div class="flex items-center gap-2">
                     <Button
@@ -675,11 +674,11 @@ export default function DashboardView(props: DashboardViewProps) {
                       disabled={!canExportWorkspace() || props.exportWorkspaceBusy}
                       title={
                         !canExportWorkspace()
-                          ? "Export is only available for local workspaces"
-                          : "Export workspace config"
+                          ? "导出仅适用于本地工作区"
+                          : "导出工作区配置"
                       }
                     >
-                      Share config
+                      分享配置
                     </Button>
                     <Button
                       variant="secondary"
@@ -687,7 +686,7 @@ export default function DashboardView(props: DashboardViewProps) {
                       onClick={() => props.setWorkspacePickerOpen(true)}
                     >
                       <Plus size={14} />
-                      Add workspace
+                      添加工作区
                     </Button>
                   </div>
                 </div>
@@ -709,8 +708,8 @@ export default function DashboardView(props: DashboardViewProps) {
                                 type="button"
                                 class="shrink-0 rounded-md p-1 text-gray-9 hover:text-gray-12 hover:bg-gray-3 transition-colors"
                                 onClick={() => handleCopyWorkspace(workspace)}
-                                title={copiedWorkspaceId() === workspace.id ? "Copied" : "Copy path"}
-                                aria-label="Copy workspace path"
+                                title={copiedWorkspaceId() === workspace.id ? "已复制" : "复制路径"}
+                                aria-label="复制工作区路径"
                               >
                                 <Show when={copiedWorkspaceId() === workspace.id} fallback={<Copy size={12} />}>
                                   <Check size={12} class="text-green-11" />
@@ -719,13 +718,13 @@ export default function DashboardView(props: DashboardViewProps) {
                             </div>
                           </div>
                           <span class="text-[11px] text-gray-9">
-                            {workspace.workspaceType === "remote" ? "Remote" : "Local"}
+                            {workspace.workspaceType === "remote" ? "远程" : "本地"}
                           </span>
                         </div>
                         <div class="flex items-center justify-end text-xs text-gray-9 h-8">
                           <Show when={workspace.id === props.activeWorkspaceId}>
                             <span class="text-green-11 font-medium flex items-center gap-1.5 !px-2">
-                              Active
+                              活跃
                             </span>
                           </Show>
                           <Show when={workspace.id !== props.activeWorkspaceId}>
@@ -736,8 +735,8 @@ export default function DashboardView(props: DashboardViewProps) {
                               disabled={props.connectingWorkspaceId === workspace.id}
                             >
                               {props.connectingWorkspaceId === workspace.id
-                                ? "Switching..."
-                                : "Switch"}
+                                ? "切换中..."
+                                : "切换"}
                             </Button>
                           </Show>
                         </div>
@@ -749,7 +748,7 @@ export default function DashboardView(props: DashboardViewProps) {
 
               <section>
                 <h3 class="text-sm font-medium text-gray-11 uppercase tracking-wider mb-4">
-                  Recent Sessions
+                  最近会话
                 </h3>
 
                 <div class="bg-gray-2/30 border border-gray-6/50 rounded-2xl overflow-hidden">
@@ -795,14 +794,14 @@ export default function DashboardView(props: DashboardViewProps) {
 
                   <Show when={!props.sessions.length}>
                     <div class="p-6 text-sm text-gray-10 space-y-3">
-                      <div>No sessions yet.</div>
+                      <div>暂无会话</div>
                       <Button
                         variant="secondary"
                         class="text-xs h-8"
                         onClick={props.createSessionAndOpen}
                         disabled={props.newTaskDisabled}
                       >
-                        Start a task
+                        开始任务
                       </Button>
                     </div>
                   </Show>
@@ -813,7 +812,7 @@ export default function DashboardView(props: DashboardViewProps) {
             <Match when={props.tab === "sessions"}>
               <section>
                 <h3 class="text-sm font-medium text-gray-11 uppercase tracking-wider mb-4">
-                  Sessions
+                  会话
                 </h3>
 
                 <div class="bg-gray-2/30 border border-gray-6/50 rounded-2xl overflow-hidden">
@@ -859,7 +858,7 @@ export default function DashboardView(props: DashboardViewProps) {
 
                   <Show when={!props.sessions.length}>
                     <div class="p-6 text-sm text-gray-10">
-                      No sessions yet.
+                      暂无会话
                     </div>
                   </Show>
                 </div>
@@ -1040,24 +1039,24 @@ export default function DashboardView(props: DashboardViewProps) {
           <div class="mx-auto max-w-5xl px-6 md:px-10 pb-24 md:pb-10">
             <div class="rounded-2xl bg-red-1/40 px-5 py-4 text-sm text-red-12 border border-red-7/20 space-y-3">
               <div>{props.error}</div>
-              <Show when={props.developerMode}>
-                <div class="flex flex-wrap items-center gap-2">
-                  <Button
-                    variant="secondary"
-                    class="text-xs h-8 py-0 px-3"
-                    onClick={props.repairOpencodeCache}
-                    disabled={props.cacheRepairBusy || !props.developerMode}
-                  >
-                    {props.cacheRepairBusy ? "Repairing cache" : "Repair cache"}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    class="text-xs h-8 py-0 px-3"
-                    onClick={props.stopHost}
-                    disabled={props.busy}
-                  >
-                    Retry
-                  </Button>
+                <Show when={props.developerMode}>
+                  <div class="flex flex-wrap items-center gap-2">
+                    <Button
+                      variant="secondary"
+                      class="text-xs h-8 py-0 px-3"
+                      onClick={props.repairOpencodeCache}
+                      disabled={props.cacheRepairBusy || !props.developerMode}
+                    >
+                      {props.cacheRepairBusy ? "修复缓存中" : "修复缓存"}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      class="text-xs h-8 py-0 px-3"
+                      onClick={props.stopHost}
+                      disabled={props.busy}
+                    >
+                      重试
+                    </Button>
                   <Show when={props.cacheRepairResult}>
                     <span class="text-xs text-red-12/80">
                       {props.cacheRepairResult}
@@ -1103,7 +1102,7 @@ export default function DashboardView(props: DashboardViewProps) {
                 onClick={() => props.setTab("home")}
               >
                 <Command size={18} />
-                Home
+                首页
               </button>
               <button
                 class={`flex flex-col items-center gap-1 text-xs ${
@@ -1112,7 +1111,7 @@ export default function DashboardView(props: DashboardViewProps) {
                 onClick={() => props.setTab("sessions")}
               >
                 <Play size={18} />
-                Runs
+                运行
               </button>
               <button
                 class={`flex flex-col items-center gap-1 text-xs ${
@@ -1121,7 +1120,7 @@ export default function DashboardView(props: DashboardViewProps) {
                 onClick={() => props.setTab("scheduled")}
               >
                 <Calendar size={18} />
-                Schedule
+                定时
               </button>
               <button
                 class={`flex flex-col items-center gap-1 text-xs ${
@@ -1130,7 +1129,7 @@ export default function DashboardView(props: DashboardViewProps) {
                 onClick={() => props.setTab("commands")}
               >
                 <Terminal size={18} />
-                Commands
+                命令
               </button>
               <button
                 class={`flex flex-col items-center gap-1 text-xs ${
@@ -1139,7 +1138,7 @@ export default function DashboardView(props: DashboardViewProps) {
                 onClick={() => props.setTab("skills")}
               >
                 <Package size={18} />
-                Skills
+                技能
               </button>
               <button
                 class={`flex flex-col items-center gap-1 text-xs ${
@@ -1148,7 +1147,7 @@ export default function DashboardView(props: DashboardViewProps) {
                 onClick={() => props.setTab("plugins")}
               >
                 <Cpu size={18} />
-                Plugins
+                插件
               </button>
               <button
                 class={`flex flex-col items-center gap-1 text-xs ${
@@ -1157,7 +1156,7 @@ export default function DashboardView(props: DashboardViewProps) {
                 onClick={() => props.setTab("mcp")}
               >
                 <Server size={18} />
-                MCPs
+                MCP
               </button>
             </div>
           </nav>

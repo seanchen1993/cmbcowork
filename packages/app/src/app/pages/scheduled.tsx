@@ -26,9 +26,9 @@ export type ScheduledTasksViewProps = {
 };
 
 const toRelative = (value?: string | null) => {
-  if (!value) return "Never";
+  if (!value) return "从未";
   const parsed = Date.parse(value);
-  if (!Number.isFinite(parsed)) return "Never";
+  if (!Number.isFinite(parsed)) return "从未";
   return formatRelativeTime(parsed);
 };
 
@@ -36,20 +36,20 @@ const taskSummary = (job: ScheduledJob) => {
   const run = job.run;
   if (run?.command) {
     const args = run.arguments ? ` ${run.arguments}` : "";
-    return { label: "Command", value: `${run.command}${args}`, mono: true };
+    return { label: "命令", value: `${run.command}${args}`, mono: true };
   }
   const prompt = run?.prompt ?? job.prompt;
   if (prompt) {
-    return { label: "Prompt", value: prompt, mono: false };
+    return { label: "提示", value: prompt, mono: false };
   }
-  return { label: "Task", value: "No prompt or command found.", mono: false };
+  return { label: "任务", value: "未找到提示或命令", mono: false };
 };
 
 const statusLabel = (status?: string | null) => {
-  if (!status) return "Not run yet";
-  if (status === "running") return "Running";
-  if (status === "success") return "Success";
-  if (status === "failed") return "Failed";
+  if (!status) return "尚未运行";
+  if (status === "running") return "运行中";
+  if (status === "success") return "成功";
+  if (status === "failed") return "失败";
   return status;
 };
 
@@ -67,35 +67,35 @@ export default function ScheduledTasksView(props: ScheduledTasksViewProps) {
   });
   const supportNote = createMemo(() => {
     if (props.source === "remote") {
-      return props.sourceReady ? null : "CMBCowork server unavailable. Connect to sync scheduled tasks.";
+      return props.sourceReady ? null : "CMBCowork 服务器不可用。连接以同步定时任务。";
     }
-    if (!isTauriRuntime()) return "Scheduled tasks require the desktop app.";
-    if (props.isWindows) return "Scheduler is not supported on Windows yet.";
+    if (!isTauriRuntime()) return "定时任务需要桌面应用。";
+    if (props.isWindows) return "Windows 暂不支持调度器。";
     return null;
   });
   const sourceDescription = createMemo(() =>
     props.source === "remote"
-      ? "Automations that run on a schedule from the connected CMBCowork server."
-      : "Automations that run on a schedule from this device."
+      ? "从连接的 CMBCowork 服务器按计划运行的自动化任务。"
+      : "从此设备按计划运行的自动化任务。"
   );
   const sourceLabel = createMemo(() =>
-    props.source === "remote" ? "From CMBCowork server" : "From local scheduler"
+    props.source === "remote" ? "来自 CMBCowork 服务器" : "来自本地调度器"
   );
-  const schedulerLabel = createMemo(() => (props.source === "remote" ? "CMBCowork server" : "Local"));
+  const schedulerLabel = createMemo(() => (props.source === "remote" ? "CMBCowork 服务器" : "本地"));
   const schedulerHint = createMemo(() =>
-    props.source === "remote" ? "Remote instance" : "Launchd or systemd"
+    props.source === "remote" ? "远程实例" : "Launchd 或 systemd"
   );
   const schedulerUnavailableHint = createMemo(() =>
-    props.source === "remote" ? "CMBCowork server unavailable" : "Desktop-only"
+    props.source === "remote" ? "CMBCowork 服务器不可用" : "仅桌面应用"
   );
   const deleteDescription = createMemo(() =>
     props.source === "remote"
-      ? "This removes the schedule and deletes the job definition from the connected CMBCowork server."
-      : "This removes the schedule and deletes the job definition from your machine."
+      ? "这将移除计划并从连接的 CMBCowork 服务器删除任务定义。"
+      : "这将移除计划并从你的机器删除任务定义。"
   );
 
   const lastUpdatedLabel = createMemo(() => {
-    if (!props.lastUpdatedAt) return "Not synced yet";
+    if (!props.lastUpdatedAt) return "尚未同步";
     return formatRelativeTime(props.lastUpdatedAt);
   });
 
@@ -113,7 +113,7 @@ export default function ScheduledTasksView(props: ScheduledTasksViewProps) {
       setDeleteTarget(null);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      setDeleteError(message || "Failed to delete job.");
+      setDeleteError(message || "删除任务失败");
     } finally {
       setDeleteBusy(false);
     }
@@ -125,7 +125,7 @@ export default function ScheduledTasksView(props: ScheduledTasksViewProps) {
         <div class="bg-gray-1 rounded-[22px] p-6 md:p-8 space-y-6">
           <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h3 class="text-lg font-semibold text-gray-12">Scheduled Tasks</h3>
+              <h3 class="text-lg font-semibold text-gray-12">定时任务</h3>
               <p class="text-sm text-gray-10 mt-1">
                 {sourceDescription()}
               </p>
@@ -136,33 +136,33 @@ export default function ScheduledTasksView(props: ScheduledTasksViewProps) {
               disabled={!supported() || props.busy}
             >
               <RefreshCw size={16} />
-              {props.busy ? "Refreshing" : "Refresh"}
+              {props.busy ? "刷新中" : "刷新"}
             </Button>
           </div>
 
           <div class="grid gap-3 sm:grid-cols-3">
             <div class="rounded-2xl border border-gray-6/60 bg-gray-2/40 p-4">
               <div class="text-[11px] uppercase tracking-wider text-gray-10">
-                Scheduled Jobs
+                定时任务
               </div>
               <div class="mt-2 text-2xl font-semibold text-gray-12">
                 {props.jobs.length}
               </div>
-              <div class="text-xs text-gray-9 mt-1">Active schedules</div>
+              <div class="text-xs text-gray-9 mt-1">活跃计划</div>
             </div>
             <div class="rounded-2xl border border-gray-6/60 bg-gray-2/40 p-4">
               <div class="text-[11px] uppercase tracking-wider text-gray-10">
-                Last Sync
+                上次同步
               </div>
               <div class="mt-2 text-lg font-semibold text-gray-12">
-                {supported() ? lastUpdatedLabel() : "Unavailable"}
+                {supported() ? lastUpdatedLabel() : "不可用"}
               </div>
               <div class="text-xs text-gray-9 mt-1">{sourceLabel()}</div>
             </div>
             <div class="rounded-2xl border border-gray-6/60 bg-gray-2/40 p-4">
-              <div class="text-[11px] uppercase tracking-wider text-gray-10">Scheduler</div>
+              <div class="text-[11px] uppercase tracking-wider text-gray-10">调度器</div>
               <div class="mt-2 text-lg font-semibold text-gray-12">
-                {supported() ? schedulerLabel() : "Unavailable"}
+                {supported() ? schedulerLabel() : "不可用"}
               </div>
               <div class="text-xs text-gray-9 mt-1">
                 {supported() ? schedulerHint() : schedulerUnavailableHint()}
@@ -195,8 +195,7 @@ export default function ScheduledTasksView(props: ScheduledTasksViewProps) {
           when={props.jobs.length}
           fallback={
             <div class="px-6 py-10 text-sm text-gray-10">
-              No scheduled tasks yet. Add the opencode-scheduler plugin and create a job to
-              see it here.
+              暂无定时任务。添加 opencode-scheduler 插件并创建任务后，将显示在此处。
             </div>
           }
         >
@@ -232,7 +231,7 @@ export default function ScheduledTasksView(props: ScheduledTasksViewProps) {
                           disabled={!supported() || props.busy || deleteBusy()}
                         >
                           <Trash2 size={14} />
-                          Delete
+                          删除
                         </Button>
                       </div>
                     </div>
@@ -251,12 +250,12 @@ export default function ScheduledTasksView(props: ScheduledTasksViewProps) {
                         </div>
                       </div>
                       <div class="rounded-xl border border-gray-6/60 bg-gray-2/30 p-4 space-y-2">
-                        <div class="text-[10px] uppercase tracking-wide text-gray-10">Run context</div>
+                        <div class="text-[10px] uppercase tracking-wide text-gray-10">运行上下文</div>
                         <div class="space-y-2 text-xs text-gray-10">
                           <div class="flex items-center gap-2">
                             <FolderOpen size={14} class="text-gray-9" />
                             <span class="font-mono text-gray-12 break-all">
-                              {job.workdir ?? "Default"}
+                              {job.workdir ?? "默认"}
                             </span>
                           </div>
                           <Show when={job.run?.attachUrl ?? job.attachUrl}>
@@ -268,7 +267,7 @@ export default function ScheduledTasksView(props: ScheduledTasksViewProps) {
                             </div>
                           </Show>
                           <Show when={job.source}>
-                            <div class="text-[11px] text-gray-9">Source: {job.source}</div>
+                            <div class="text-[11px] text-gray-9">来源: {job.source}</div>
                           </Show>
                         </div>
                       </div>
@@ -277,14 +276,14 @@ export default function ScheduledTasksView(props: ScheduledTasksViewProps) {
                     <div class="flex flex-wrap gap-4 text-xs text-gray-10">
                       <div class="flex items-center gap-1">
                         <Clock size={12} />
-                        Last run {toRelative(job.lastRunAt)}
+                        上次运行 {toRelative(job.lastRunAt)}
                       </div>
-                      <div>Created {toRelative(job.createdAt)}</div>
+                      <div>创建于 {toRelative(job.createdAt)}</div>
                       <Show when={job.run?.agent}>
-                        <div>Agent {job.run?.agent}</div>
+                        <div>代理 {job.run?.agent}</div>
                       </Show>
                       <Show when={job.run?.model}>
-                        <div>Model {job.run?.model}</div>
+                        <div>模型 {job.run?.model}</div>
                       </Show>
                     </div>
                   </div>
@@ -301,7 +300,7 @@ export default function ScheduledTasksView(props: ScheduledTasksViewProps) {
             <div class="p-6 space-y-4">
               <div class="flex items-start justify-between gap-4">
                 <div>
-                  <h3 class="text-lg font-semibold text-gray-12">Delete scheduled task?</h3>
+                  <h3 class="text-lg font-semibold text-gray-12">删除定时任务？</h3>
                   <p class="text-sm text-gray-11 mt-1">
                     {deleteDescription()}
                   </p>
@@ -312,10 +311,10 @@ export default function ScheduledTasksView(props: ScheduledTasksViewProps) {
               </div>
               <div class="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setDeleteTarget(null)} disabled={deleteBusy()}>
-                  Cancel
+                  取消
                 </Button>
                 <Button variant="danger" onClick={confirmDelete} disabled={deleteBusy()}>
-                  {deleteBusy() ? "Deleting" : "Delete"}
+                  {deleteBusy() ? "删除中" : "删除"}
                 </Button>
               </div>
             </div>

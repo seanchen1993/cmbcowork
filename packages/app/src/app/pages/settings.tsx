@@ -470,7 +470,7 @@ function OwpenbotSettings(props: {
           <div class="text-xs text-gray-10 mt-1">Connect Telegram and WhatsApp to chat with your AI.</div>
         </div>
         <div class={`text-xs px-2 py-1 rounded-full border ${bridgeStatusStyle()}`}>
-          {owpenbotStatus()?.running ? "Running" : "Offline"}
+          {owpenbotStatus()?.running ? "运行中" : "离线"}
         </div>
       </div>
 
@@ -869,7 +869,7 @@ export default function SettingsView(props: SettingsViewProps) {
   const providerConnectedCount = createMemo(() => (props.providerConnectedIds ?? []).length);
   const providerAvailableCount = createMemo(() => (props.providers ?? []).length);
   const providerStatusLabel = createMemo(() => {
-    if (!providerAvailableCount()) return "Unavailable";
+    if (!providerAvailableCount()) return "不可用";
     if (!providerConnectedCount()) return "Not connected";
     return `${providerConnectedCount()} connected`;
   });
@@ -942,8 +942,8 @@ export default function SettingsView(props: SettingsViewProps) {
   });
 
   const engineStatusLabel = createMemo(() => {
-    if (!isTauriRuntime()) return "Unavailable";
-    return props.engineInfo?.running ? "Running" : "Offline";
+    if (!isTauriRuntime()) return "不可用";
+    return props.engineInfo?.running ? "运行中" : "离线";
   });
 
   const engineStatusStyle = createMemo(() => {
@@ -976,8 +976,8 @@ export default function SettingsView(props: SettingsViewProps) {
   });
 
   const owpenbotStatusLabel = createMemo(() => {
-    if (!isTauriRuntime()) return "Unavailable";
-    return props.owpenbotInfo?.running ? "Running" : "Offline";
+    if (!isTauriRuntime()) return "不可用";
+    return props.owpenbotInfo?.running ? "运行中" : "离线";
   });
 
   const owpenbotStatusStyle = createMemo(() => {
@@ -1030,8 +1030,8 @@ export default function SettingsView(props: SettingsViewProps) {
   };
 
   const openwrkStatusLabel = createMemo(() => {
-    if (!props.openwrkStatus) return "Unavailable";
-    return props.openwrkStatus.running ? "Running" : "Offline";
+    if (!props.openwrkStatus) return "不可用";
+    return props.openwrkStatus.running ? "运行中" : "离线";
   });
 
   const openwrkStatusStyle = createMemo(() => {
@@ -1042,7 +1042,7 @@ export default function SettingsView(props: SettingsViewProps) {
   });
 
   const openworkAuditStatusLabel = createMemo(() => {
-    if (!props.openworkServerWorkspaceId) return "Unavailable";
+    if (!props.openworkServerWorkspaceId) return "不可用";
     if (props.openworkAuditStatus === "loading") return "Loading";
     if (props.openworkAuditStatus === "error") return "Error";
     return "Ready";
@@ -1066,19 +1066,19 @@ export default function SettingsView(props: SettingsViewProps) {
   const tabLabel = (tab: SettingsTab) => {
     switch (tab) {
       case "model":
-        return "Model";
+        return "模型";
       case "keybinds":
-        return "Keybinds";
+        return "快捷键";
       case "advanced":
-        return "Advanced";
+        return "高级";
       case "remote":
-        return "Remote";
+        return "远程";
       case "messaging":
-        return "Messaging Bridge";
+        return "消息桥接";
       case "debug":
-        return "Debug";
+        return "调试";
       default:
-        return "General";
+        return "通用";
     }
   };
 
@@ -1110,45 +1110,45 @@ export default function SettingsView(props: SettingsViewProps) {
   };
 
   const formatCapability = (cap?: { read?: boolean; write?: boolean; source?: string }) => {
-    if (!cap) return "Unavailable";
-    const parts = [cap.read ? "read" : null, cap.write ? "write" : null].filter(Boolean).join(" / ");
-    const label = parts || "no access";
+    if (!cap) return "不可用";
+    const parts = [cap.read ? "读取" : null, cap.write ? "写入" : null].filter(Boolean).join(" / ");
+    const label = parts || "无访问权限";
     return cap.source ? `${label} · ${cap.source}` : label;
   };
 
   const engineStdout = () => {
-    if (!isTauriRuntime()) return "Available in the desktop app.";
-    return props.engineInfo?.lastStdout?.trim() || "No stdout captured yet.";
+    if (!isTauriRuntime()) return "在桌面应用中可用。";
+    return props.engineInfo?.lastStdout?.trim() || "尚未捕获标准输出。";
   };
 
   const engineStderr = () => {
-    if (!isTauriRuntime()) return "Available in the desktop app.";
-    return props.engineInfo?.lastStderr?.trim() || "No stderr captured yet.";
+    if (!isTauriRuntime()) return "在桌面应用中可用。";
+    return props.engineInfo?.lastStderr?.trim() || "尚未捕获标准错误。";
   };
 
   const openworkStdout = () => {
-    if (!props.openworkServerHostInfo) return "Logs are available on the host.";
-    return props.openworkServerHostInfo.lastStdout?.trim() || "No stdout captured yet.";
+    if (!props.openworkServerHostInfo) return "日志在主机上可用。";
+    return props.openworkServerHostInfo.lastStdout?.trim() || "尚未捕获标准输出。";
   };
 
   const openworkStderr = () => {
-    if (!props.openworkServerHostInfo) return "Logs are available on the host.";
-    return props.openworkServerHostInfo.lastStderr?.trim() || "No stderr captured yet.";
+    if (!props.openworkServerHostInfo) return "日志在主机上可用。";
+    return props.openworkServerHostInfo.lastStderr?.trim() || "尚未捕获标准错误。";
   };
 
   const owpenbotStdout = () => {
-    if (!isTauriRuntime()) return "Available in the desktop app.";
-    return props.owpenbotInfo?.lastStdout?.trim() || "No stdout captured yet.";
+    if (!isTauriRuntime()) return "在桌面应用中可用。";
+    return props.owpenbotInfo?.lastStdout?.trim() || "尚未捕获标准输出。";
   };
 
   const owpenbotStderr = () => {
-    if (!isTauriRuntime()) return "Available in the desktop app.";
-    return props.owpenbotInfo?.lastStderr?.trim() || "No stderr captured yet.";
+    if (!isTauriRuntime()) return "在桌面应用中可用。";
+    return props.owpenbotInfo?.lastStderr?.trim() || "尚未捕获标准错误。";
   };
 
   const formatOpenwrkBinary = (binary?: OpenwrkBinaryInfo | null) => {
-    if (!binary) return "Binary unavailable";
-    const version = binary.actualVersion || binary.expectedVersion || "unknown";
+    if (!binary) return "二进制文件不可用";
+    const version = binary.actualVersion || binary.expectedVersion || "未知";
     return `${binary.source} · ${version}`;
   };
 
@@ -1160,9 +1160,9 @@ export default function SettingsView(props: SettingsViewProps) {
   const openwrkBinaryPath = () => props.openwrkStatus?.binaries?.opencode?.path ?? "—";
   const openwrkSidecarSummary = () => {
     const info = props.openwrkStatus?.sidecar;
-    if (!info) return "Sidecar config unavailable";
-    const source = info.source ?? "auto";
-    const target = info.target ?? "unknown";
+    if (!info) return "Sidecar 配置不可用";
+    const source = info.source ?? "自动";
+    const target = info.target ?? "未知";
     return `${source} · ${target}`;
   };
 
@@ -1195,8 +1195,8 @@ export default function SettingsView(props: SettingsViewProps) {
 
   const hostInfo = createMemo(() => props.openworkServerHostInfo);
   const hostStatusLabel = createMemo(() => {
-    if (!hostInfo()?.running) return "Offline";
-    return "Available";
+    if (!hostInfo()?.running) return "离线";
+    return "可用";
   });
   const hostStatusStyle = createMemo(() => {
     if (!hostInfo()?.running) return "bg-gray-4/60 text-gray-11 border-gray-7/50";
@@ -1281,22 +1281,22 @@ export default function SettingsView(props: SettingsViewProps) {
         <Match when={activeTab() === "general"}>
           <div class="space-y-6">
             <div class="bg-gray-2/30 border border-gray-6/50 rounded-2xl p-5 space-y-3">
-              <div class="text-sm font-medium text-gray-12">Connection</div>
+              <div class="text-sm font-medium text-gray-12">连接</div>
               <div class="text-xs text-gray-10">{props.headerStatus}</div>
               <div class="text-xs text-gray-7 font-mono">{props.baseUrl}</div>
               <div class="pt-2 flex flex-wrap gap-2">
                 <Button variant="secondary" onClick={props.toggleDeveloperMode}>
                   <Shield size={16} />
-                  {props.developerMode ? "Disable Developer Mode" : "Enable Developer Mode"}
+                  {props.developerMode ? "禁用开发者模式" : "启用开发者模式"}
                 </Button>
                 <Show when={isLocalEngineRunning()}>
                   <Button variant="danger" onClick={props.stopHost} disabled={props.busy}>
-                    Stop local server
+                    停止本地服务器
                   </Button>
                 </Show>
                 <Show when={!isLocalEngineRunning() && props.openworkServerStatus === "connected"}>
                   <Button variant="outline" onClick={props.stopHost} disabled={props.busy}>
-                    Disconnect server
+                    断开服务器连接
                   </Button>
                 </Show>
               </div>
@@ -1307,9 +1307,9 @@ export default function SettingsView(props: SettingsViewProps) {
                 <div>
                   <div class="flex items-center gap-2">
                     <PlugZap size={16} class="text-gray-11" />
-                    <div class="text-sm font-medium text-gray-12">Providers</div>
+                    <div class="text-sm font-medium text-gray-12">提供商</div>
                   </div>
-                  <div class="text-xs text-gray-10 mt-1">Connect services for models and tools.</div>
+                  <div class="text-xs text-gray-10 mt-1">连接模型和工具的服务。</div>
                 </div>
                 <div class={`text-xs px-2 py-1 rounded-full border ${providerStatusStyle()}`}>
                   {providerStatusLabel()}
@@ -1322,7 +1322,7 @@ export default function SettingsView(props: SettingsViewProps) {
                   onClick={handleOpenProviderAuth}
                   disabled={props.busy || props.providerAuthBusy}
                 >
-                  {props.providerAuthBusy ? "Loading providers..." : "Connect provider"}
+                  {props.providerAuthBusy ? "加载提供商中..." : "连接提供商"}
                 </Button>
                 <div class="text-xs text-gray-9">{providerSummary()}</div>
               </div>
@@ -1334,14 +1334,14 @@ export default function SettingsView(props: SettingsViewProps) {
               </Show>
 
               <div class="text-[11px] text-gray-8">
-                API keys are stored locally by OpenCode. Use <span class="font-mono">/models</span> to pick a default.
+                API 密钥由 OpenCode 本地存储。使用 <span class="font-mono">/models</span> 选择默认模型。
               </div>
             </div>
 
             <div class="bg-gray-2/30 border border-gray-6/50 rounded-2xl p-5 space-y-4">
               <div>
-                <div class="text-sm font-medium text-gray-12">Appearance</div>
-                <div class="text-xs text-gray-10">Match the system or force light/dark mode.</div>
+                <div class="text-sm font-medium text-gray-12">外观</div>
+                <div class="text-xs text-gray-10">跟随系统或强制使用浅色/深色模式。</div>
               </div>
 
               <div class="flex flex-wrap gap-2">
@@ -1351,7 +1351,7 @@ export default function SettingsView(props: SettingsViewProps) {
                   onClick={() => props.setThemeMode("system")}
                   disabled={props.busy}
                 >
-                  System
+                  系统
                 </Button>
                 <Button
                   variant={props.themeMode === "light" ? "secondary" : "outline"}
@@ -1359,7 +1359,7 @@ export default function SettingsView(props: SettingsViewProps) {
                   onClick={() => props.setThemeMode("light")}
                   disabled={props.busy}
                 >
-                  Light
+                  浅色
                 </Button>
                 <Button
                   variant={props.themeMode === "dark" ? "secondary" : "outline"}
@@ -1367,12 +1367,12 @@ export default function SettingsView(props: SettingsViewProps) {
                   onClick={() => props.setThemeMode("dark")}
                   disabled={props.busy}
                 >
-                  Dark
+                  深色
                 </Button>
               </div>
 
               <div class="text-xs text-gray-7">
-                System mode follows your OS preference automatically.
+                系统模式会自动跟随您的操作系统偏好。
               </div>
             </div>
           </div>
@@ -1382,8 +1382,8 @@ export default function SettingsView(props: SettingsViewProps) {
           <div class="space-y-6">
             <div class="bg-gray-2/30 border border-gray-6/50 rounded-2xl p-5 space-y-4">
               <div>
-                <div class="text-sm font-medium text-gray-12">Model</div>
-                <div class="text-xs text-gray-10">Defaults + thinking controls for runs.</div>
+                <div class="text-sm font-medium text-gray-12">模型</div>
+                <div class="text-xs text-gray-10">默认设置 + 运行时的思考控制。</div>
               </div>
 
               <div class="flex items-center justify-between bg-gray-1 p-3 rounded-xl border border-gray-6 gap-3">
@@ -1397,14 +1397,14 @@ export default function SettingsView(props: SettingsViewProps) {
                   onClick={props.openDefaultModelPicker}
                   disabled={props.busy}
                 >
-                  Change
+                  更改
                 </Button>
               </div>
 
               <div class="flex items-center justify-between bg-gray-1 p-3 rounded-xl border border-gray-6 gap-3">
                 <div class="min-w-0">
-                  <div class="text-sm text-gray-12">Thinking</div>
-                  <div class="text-xs text-gray-7">Show thinking parts (Developer mode only).</div>
+                  <div class="text-sm text-gray-12">思考过程</div>
+                  <div class="text-xs text-gray-7">显示思考部分（仅开发者模式）。</div>
                 </div>
                 <Button
                   variant="outline"
@@ -1412,13 +1412,13 @@ export default function SettingsView(props: SettingsViewProps) {
                   onClick={props.toggleShowThinking}
                   disabled={props.busy}
                 >
-                  {props.showThinking ? "On" : "Off"}
+                  {props.showThinking ? "开" : "关"}
                 </Button>
               </div>
 
               <div class="flex items-center justify-between bg-gray-1 p-3 rounded-xl border border-gray-6 gap-3">
                 <div class="min-w-0">
-                  <div class="text-sm text-gray-12">Model variant</div>
+                  <div class="text-sm text-gray-12">模型变体</div>
                   <div class="text-xs text-gray-7 font-mono truncate">{props.modelVariantLabel}</div>
                 </div>
                 <Button
@@ -1427,7 +1427,7 @@ export default function SettingsView(props: SettingsViewProps) {
                   onClick={props.editModelVariant}
                   disabled={props.busy}
                 >
-                  Edit
+                  编辑
                 </Button>
               </div>
             </div>
@@ -1450,8 +1450,8 @@ export default function SettingsView(props: SettingsViewProps) {
             <div class="bg-gray-2/30 border border-gray-6/50 rounded-2xl p-5 space-y-3">
               <div class="flex items-start justify-between gap-4">
                 <div>
-                  <div class="text-sm font-medium text-gray-12">Updates</div>
-                  <div class="text-xs text-gray-10">Keep CMBCowork up to date.</div>
+                  <div class="text-sm font-medium text-gray-12">更新</div>
+                  <div class="text-xs text-gray-10">保持 CMBCowork 为最新版本。</div>
                 </div>
                 <div class="text-xs text-gray-7 font-mono">{props.appVersion ? `v${props.appVersion}` : ""}</div>
               </div>
@@ -1465,8 +1465,8 @@ export default function SettingsView(props: SettingsViewProps) {
                       <>
                         <div class="flex items-center justify-between bg-gray-1 p-3 rounded-xl border border-gray-6">
                           <div class="space-y-0.5">
-                            <div class="text-sm text-gray-12">Automatic checks</div>
-                            <div class="text-xs text-gray-7">Once per day (quiet)</div>
+                            <div class="text-sm text-gray-12">自动检查</div>
+                            <div class="text-xs text-gray-7">每天一次（静默）</div>
                           </div>
                           <button
                             class={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
@@ -1476,7 +1476,7 @@ export default function SettingsView(props: SettingsViewProps) {
                             }`}
                             onClick={props.toggleUpdateAutoCheck}
                           >
-                            {props.updateAutoCheck ? "On" : "Off"}
+                            {props.updateAutoCheck ? "开" : "关"}
                           </button>
                         </div>
 

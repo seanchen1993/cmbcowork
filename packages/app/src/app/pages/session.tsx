@@ -148,7 +148,7 @@ export default function SessionView(props: SessionViewProps) {
 
   const commandNeedsDetails = (command: { template: string }) => COMMAND_ARGS_RE.test(command.template);
 
-  const agentLabel = createMemo(() => props.selectedSessionAgent ?? "Default agent");
+  const agentLabel = createMemo(() => props.selectedSessionAgent ?? "默认代理");
 
   const isNearBottom = (el: HTMLElement, threshold = 80) => {
     const distance = el.scrollHeight - el.scrollTop - el.clientHeight;
@@ -167,12 +167,12 @@ export default function SessionView(props: SessionViewProps) {
     if (!trimmed) return;
 
     if (props.activeWorkspaceDisplay.workspaceType === "remote") {
-      setCommandToast("File open is unavailable for remote workspaces.");
+      setCommandToast("远程工作区无法打开文件");
       return;
     }
 
     if (!isTauriRuntime()) {
-      setCommandToast("File open is available in the desktop app.");
+      setCommandToast("文件打开功能仅在桌面应用中可用");
       return;
     }
 
@@ -180,13 +180,13 @@ export default function SessionView(props: SessionViewProps) {
       const { openPath } = await import("@tauri-apps/plugin-opener");
       const root = props.activeWorkspaceRoot.trim();
       if (!isAbsolutePath(trimmed) && !root) {
-        setCommandToast("Pick a workspace to open files.");
+        setCommandToast("请先选择工作区");
         return;
       }
       const target = !isAbsolutePath(trimmed) && root ? await join(root, trimmed) : trimmed;
       await openPath(target);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Unable to open file";
+      const message = error instanceof Error ? error.message : "无法打开文件";
       setCommandToast(message);
     }
   };
@@ -195,7 +195,7 @@ export default function SessionView(props: SessionViewProps) {
     const parsed = parseTemplateFrontmatter(browserSetupCommandTemplate);
     const name = parsed?.data.name?.trim() || "browser-setup";
     const description =
-      parsed?.data.description?.trim() || "Guide user through Chrome browser automation setup";
+      parsed?.data.description?.trim() || "引导用户完成 Chrome 浏览器自动化设置";
     const template = parsed?.body?.trim() || browserSetupCommandTemplate.trim();
 
     return { name, description, template };
@@ -206,18 +206,18 @@ export default function SessionView(props: SessionViewProps) {
     if (existing) return existing;
 
     if (props.activeWorkspaceDisplay.workspaceType === "remote") {
-      setCommandToast("Browser setup command is only available in local workspaces.");
+      setCommandToast("浏览器设置命令仅在本地工作区可用");
       return null;
     }
 
     if (!isTauriRuntime()) {
-      setCommandToast("Browser setup is available in the desktop app.");
+      setCommandToast("浏览器设置仅在桌面应用中可用");
       return null;
     }
 
     const root = props.activeWorkspaceDisplay.path?.trim() ?? "";
     if (!root) {
-      setCommandToast("Pick a workspace folder to install the command.");
+      setCommandToast("请先选择工作区文件夹");
       return null;
     }
 
@@ -236,7 +236,7 @@ export default function SessionView(props: SessionViewProps) {
         scope: "workspace",
       };
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to install browser setup command";
+      const message = error instanceof Error ? error.message : "安装浏览器设置命令失败";
       setCommandToast(message);
       return null;
     }
@@ -252,9 +252,9 @@ export default function SessionView(props: SessionViewProps) {
       setAgentOptions(sorted);
       setAgentPickerReady(true);
       return sorted;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to load agents";
-      setAgentPickerError(message);
+          } catch (error) {
+            const message = error instanceof Error ? error.message : "加载代理失败";
+            setAgentPickerError(message);
       setAgentOptions([]);
       return [];
     } finally {
@@ -356,35 +356,35 @@ export default function SessionView(props: SessionViewProps) {
       const tool = typeof record.tool === "string" ? record.tool : "";
       switch (tool) {
         case "task":
-          return "Delegating";
+          return "委派中";
         case "todowrite":
         case "todoread":
-          return "Planning";
+          return "规划中";
         case "read":
-          return "Gathering context";
+          return "收集上下文";
         case "list":
         case "grep":
         case "glob":
-          return "Searching codebase";
+          return "搜索代码库";
         case "webfetch":
-          return "Searching the web";
+          return "搜索网络";
         case "edit":
         case "write":
-          return "Making edits";
+          return "编辑中";
         case "bash":
-          return "Running commands";
+          return "执行命令";
         default:
-          return "Working";
+          return "工作中";
       }
     }
     if (part.type === "reasoning") {
       const text = typeof (part as any).text === "string" ? (part as any).text : "";
       const match = text.trimStart().match(/^\*\*(.+?)\*\*/);
-      if (match) return `Thinking about ${match[1].trim()}`;
-      return "Thinking";
+      if (match) return `正在思考 ${match[1].trim()}`;
+      return "思考中";
     }
     if (part.type === "text") {
-      return "Gathering thoughts";
+      return "整理思路";
     }
     return null;
   };
@@ -399,7 +399,7 @@ export default function SessionView(props: SessionViewProps) {
   const thinkingStatus = createMemo(() => {
     const status = computeStatusFromPart(latestRunPart());
     if (status) return status;
-    if (runPhase() === "thinking") return "Thinking";
+    if (runPhase() === "thinking") return "思考中";
     return null;
   });
 
@@ -410,7 +410,7 @@ export default function SessionView(props: SessionViewProps) {
       const record = part as any;
       const state = record.state ?? {};
       const title =
-        typeof state.title === "string" && state.title.trim() ? state.title.trim() : String(record.tool ?? "Tool");
+        typeof state.title === "string" && state.title.trim() ? state.title.trim() : String(record.tool ?? "工具");
       const output = typeof state.output === "string" ? truncateDetail(state.output) : null;
       const error = typeof state.error === "string" ? truncateDetail(state.error) : null;
       return { title, detail: output ?? error ?? undefined };
@@ -418,12 +418,12 @@ export default function SessionView(props: SessionViewProps) {
     if (part.type === "reasoning") {
       const text = typeof (part as any).text === "string" ? (part as any).text : "";
       const detail = truncateDetail(text);
-      return detail ? { title: "Reasoning", detail } : { title: "Reasoning" };
+      return detail ? { title: "推理", detail } : { title: "推理" };
     }
     if (part.type === "text") {
       const text = typeof (part as any).text === "string" ? (part as any).text : "";
       const detail = truncateDetail(text);
-      return detail ? { title: "Draft", detail } : { title: "Draft" };
+      return detail ? { title: "草稿", detail } : { title: "草稿" };
     }
     return null;
   });
@@ -431,15 +431,15 @@ export default function SessionView(props: SessionViewProps) {
   const runLabel = createMemo(() => {
     switch (runPhase()) {
       case "sending":
-        return "Sending";
+        return "发送中";
       case "retrying":
-        return "Retrying";
+        return "重试中";
       case "responding":
-        return "Responding";
+        return "响应中";
       case "thinking":
-        return "Thinking";
+        return "思考中";
       case "error":
-        return "Run failed";
+        return "运行失败";
       default:
         return "";
     }
@@ -584,7 +584,7 @@ export default function SessionView(props: SessionViewProps) {
     const prev = prevTodoCount();
     if (count > prev && prev > 0) {
       const lastMsg = chatContainerEl?.querySelector('[data-message-role="assistant"]:last-child');
-      triggerFlyout(lastMsg ?? null, "sidebar-progress", "New Task", "check");
+      triggerFlyout(lastMsg ?? null, "sidebar-progress", "新任务", "check");
     }
     setPrevTodoCount(count);
   });
@@ -595,7 +595,7 @@ export default function SessionView(props: SessionViewProps) {
      const prev = prevFileCount();
      if (count > prev && prev > 0) {
         const lastMsg = chatContainerEl?.querySelector('[data-message-role="assistant"]:last-child');
-        triggerFlyout(lastMsg ?? null, "sidebar-context", "File Modified", "folder");
+        triggerFlyout(lastMsg ?? null, "sidebar-context", "文件已修改", "folder");
      }
      setPrevFileCount(count);
   });
@@ -615,7 +615,7 @@ export default function SessionView(props: SessionViewProps) {
   const workspaceLabel = createMemo(() => {
     const name = props.activeWorkspaceDisplay.name.trim();
     if (name) return name;
-    return "Workspace";
+    return "工作区";
   });
 
   const pickFallbackSessionId = (targetId: string) => {
@@ -635,7 +635,7 @@ export default function SessionView(props: SessionViewProps) {
 
   const openRenameModal = () => {
     if (!props.selectedSessionId) {
-      setCommandToast("No session selected");
+      setCommandToast("未选择会话");
       return;
     }
     setRenameTitle(selectedSessionTitle());
@@ -668,17 +668,17 @@ export default function SessionView(props: SessionViewProps) {
     if (deleteBusy()) return;
     const targetId = sessionId?.trim();
     if (!targetId) {
-      setCommandToast("No session selected");
+      setCommandToast("未选择会话");
       return;
     }
-    const targetTitle = props.sessions.find((session) => session.id === targetId)?.title ?? "this session";
-    const confirmed = window.confirm(`Delete session "${targetTitle}"?`);
+    const targetTitle = props.sessions.find((session) => session.id === targetId)?.title ?? "此会话";
+    const confirmed = window.confirm(`删除会话 "${targetTitle}"？`);
     if (!confirmed) return;
     const fallbackId = pickFallbackSessionId(targetId);
     setDeleteBusy(true);
     try {
       await props.deleteSession(targetId);
-      setCommandToast("Session deleted");
+      setCommandToast("会话已删除");
       if (props.selectedSessionId !== targetId) return;
       if (fallbackId) {
         await Promise.resolve(props.selectSession(fallbackId));
@@ -710,7 +710,7 @@ export default function SessionView(props: SessionViewProps) {
   const requireSessionId = () => {
     const sessionId = props.selectedSessionId;
     if (!sessionId) {
-      setCommandToast("No session selected");
+      setCommandToast("未选择会话");
       return null;
     }
     return sessionId;
@@ -749,7 +749,7 @@ export default function SessionView(props: SessionViewProps) {
     try {
       const agents = await loadAgentOptions(true);
       if (!agents.length) {
-        setCommandToast("No agents available");
+        setCommandToast("无可用代理");
         return;
       }
       const names = agents.map((agent) => agent.name);
@@ -765,12 +765,12 @@ export default function SessionView(props: SessionViewProps) {
       }
       const nextAgent = names[nextIndex] ?? null;
       if (!nextAgent) {
-        setCommandToast("No agents available");
+        setCommandToast("无可用代理");
         return;
       }
       props.setSessionAgent(sessionId, nextAgent);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Agent selection failed";
+      const message = error instanceof Error ? error.message : "代理选择失败";
       setCommandToast(message);
     }
   };
@@ -791,10 +791,10 @@ export default function SessionView(props: SessionViewProps) {
     setProviderAuthActionBusy(true);
     try {
       const message = await props.startProviderAuth(providerId);
-      setCommandToast(message || "Auth flow started");
+      setCommandToast(message || "授权流程已开始");
       props.closeProviderAuthModal();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Auth failed";
+      const message = error instanceof Error ? error.message : "授权失败";
       setCommandToast(message);
     } finally {
       setProviderAuthActionBusy(false);
@@ -806,10 +806,10 @@ export default function SessionView(props: SessionViewProps) {
     setProviderAuthActionBusy(true);
     try {
       const message = await props.submitProviderApiKey(providerId, apiKey);
-      setCommandToast(message || "API key saved");
+      setCommandToast(message || "API密钥已保存");
       props.closeProviderAuthModal();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to save API key";
+      const message = error instanceof Error ? error.message : "保存API密钥失败";
       setCommandToast(message);
     } finally {
       setProviderAuthActionBusy(false);
@@ -844,9 +844,9 @@ export default function SessionView(props: SessionViewProps) {
     const commands: CommandRegistryItem[] = [
       {
         id: "session.models",
-        title: "Choose a model",
-        category: "Session",
-        description: "Choose a model",
+        title: "选择模型",
+        category: "会话",
+        description: "选择模型",
         slash: "models",
         scope: "session",
         onSelect: () => {
@@ -856,50 +856,50 @@ export default function SessionView(props: SessionViewProps) {
       },
       {
         id: "session.connect",
-        title: "Connect a provider",
-        category: "Session",
-        description: "Connect a provider",
+        title: "连接提供商",
+        category: "会话",
+        description: "连接提供商",
         slash: "connect",
         scope: "session",
         onSelect: async () => {
           try {
             await props.openProviderAuthModal();
-            setCommandToast("Select a provider to connect");
+            setCommandToast("选择要连接的提供商");
             clearPrompt();
           } catch (error) {
-            const message = error instanceof Error ? error.message : "Connect failed";
+            const message = error instanceof Error ? error.message : "连接失败";
             setCommandToast(message);
           }
         },
       },
       {
         id: "session.variant",
-        title: "Change model variant",
-        category: "Session",
-        description: "Adjust the model variant",
+        title: "更改模型变体",
+        category: "会话",
+        description: "调整模型变体",
         slash: "variant",
         scope: "session",
         onSelect: () => {
           const rawArg = extractCommandArgs(props.prompt);
           if (!rawArg) {
-            setCommandToast(`Use /variant ${MODEL_VARIANT_OPTIONS.join("/")}`);
+            setCommandToast(`使用 /variant ${MODEL_VARIANT_OPTIONS.join("/")}`);
             return;
           }
           const normalized = normalizeVariantInput(rawArg);
           if (!normalized) {
-            setCommandToast(`Variant must be: ${MODEL_VARIANT_OPTIONS.join(", ")}`);
+            setCommandToast(`变体必须是: ${MODEL_VARIANT_OPTIONS.join(", ")}`);
             return;
           }
           props.setModelVariant(normalized);
-          setCommandToast(`Variant set to ${normalized}`);
+          setCommandToast(`变体已设置为 ${normalized}`);
           clearPrompt();
         },
       },
       {
         id: "session.new",
-        title: "Start a new task",
-        category: "Session",
-        description: "Start a new task",
+        title: "开始新任务",
+        category: "会话",
+        description: "开始新任务",
         slash: "new",
         scope: "session",
         onSelect: () => {
@@ -909,9 +909,9 @@ export default function SessionView(props: SessionViewProps) {
       },
       {
         id: "session.agent",
-        title: "Choose an agent",
-        category: "Session",
-        description: "Choose an agent",
+        title: "选择代理",
+        category: "会话",
+        description: "选择代理",
         slash: "agent",
         scope: "session",
         onSelect: async () => {
@@ -934,7 +934,7 @@ export default function SessionView(props: SessionViewProps) {
 
             const agents = await props.listAgents();
             if (!agents.length) {
-              setCommandToast("No agents available");
+              setCommandToast("无可用代理");
               clearPrompt();
               return;
             }
@@ -943,14 +943,14 @@ export default function SessionView(props: SessionViewProps) {
             let candidate = rawArg;
             if (!candidate) {
               const hint = formatListHint(agentNames);
-              const promptLabel = hint ? `Agent name (e.g. ${hint})` : "Agent name";
+              const promptLabel = hint ? `代理名称 (如 ${hint})` : "代理名称";
               const prompted = window.prompt(promptLabel, agentNames[0] ?? "");
               if (prompted == null) return;
               candidate = prompted.trim();
             }
 
             if (!candidate) {
-              setCommandToast("Agent name is required");
+              setCommandToast("代理名称不能为空");
               clearPrompt();
               return;
             }
@@ -959,7 +959,7 @@ export default function SessionView(props: SessionViewProps) {
               (agent) => agent.name.toLowerCase() === candidate.toLowerCase(),
             );
             if (!match) {
-              setCommandToast(`Unknown agent. Available: ${formatListHint(agentNames)}`);
+              setCommandToast(`未知代理，可用: ${formatListHint(agentNames)}`);
               clearPrompt();
               return;
             }
@@ -967,16 +967,16 @@ export default function SessionView(props: SessionViewProps) {
               props.setSessionAgent(sessionId, match.name);
             clearPrompt();
           } catch (error) {
-            const message = error instanceof Error ? error.message : "Agent selection failed";
+            const message = error instanceof Error ? error.message : "代理选择失败";
             setCommandToast(message);
           }
         },
       },
       {
         id: "session.agent.next",
-        title: "Next agent",
-        category: "Session",
-        description: "Cycle to the next agent",
+        title: "下一个代理",
+        category: "会话",
+        description: "切换到下一个代理",
         slash: "agent-next",
         scope: "session",
         onSelect: async () => {
@@ -986,9 +986,9 @@ export default function SessionView(props: SessionViewProps) {
       },
       {
         id: "session.agent.prev",
-        title: "Previous agent",
-        category: "Session",
-        description: "Cycle to the previous agent",
+        title: "上一个代理",
+        category: "会话",
+        description: "切换到上一个代理",
         slash: "agent-prev",
         scope: "session",
         onSelect: async () => {
@@ -998,9 +998,9 @@ export default function SessionView(props: SessionViewProps) {
       },
       {
         id: "session.export",
-        title: "Export session JSON",
-        category: "Session",
-        description: "Export session JSON",
+        title: "导出会话 JSON",
+        category: "会话",
+        description: "导出会话 JSON",
         slash: "export",
         scope: "session",
         onSelect: async () => {
@@ -1009,19 +1009,19 @@ export default function SessionView(props: SessionViewProps) {
 
           try {
             const fileName = await props.saveSession(sessionId);
-            setCommandToast(`Exported ${fileName}`);
+            setCommandToast(`已导出 ${fileName}`);
             clearPrompt();
           } catch (error) {
-            const message = error instanceof Error ? error.message : "Export failed";
+            const message = error instanceof Error ? error.message : "导出失败";
             setCommandToast(message);
           }
         },
       },
       {
         id: "session.rename",
-        title: "Rename this session",
-        category: "Session",
-        description: "Rename this session",
+        title: "重命名会话",
+        category: "会话",
+        description: "重命名会话",
         slash: "rename",
         scope: "session",
         onSelect: () => {
@@ -1031,14 +1031,14 @@ export default function SessionView(props: SessionViewProps) {
       },
       {
         id: "session.help",
-        title: "Show available commands",
-        category: "Session",
-        description: "Show available commands",
+        title: "显示可用命令",
+        category: "会话",
+        description: "显示可用命令",
         slash: "help",
         scope: "session",
         onSelect: () => {
           const preview = buildHelpPreview();
-          setCommandToast(preview ? `Commands: ${preview}` : "No commands available");
+          setCommandToast(preview ? `命令: ${preview}` : "无可用命令");
           clearPrompt();
         },
       },
@@ -1176,10 +1176,10 @@ export default function SessionView(props: SessionViewProps) {
                 props.setTab("sessions");
                 props.setView("dashboard");
               }}
-              title="Back to dashboard"
+              title="返回控制台"
             >
               <ArrowRight class="rotate-180 w-5 h-5" />
-              <span class="hidden md:inline text-xs">Back</span>
+              <span class="hidden md:inline text-xs">返回</span>
             </Button>
              <WorkspaceChip
                workspace={props.activeWorkspaceDisplay}
@@ -1239,9 +1239,9 @@ export default function SessionView(props: SessionViewProps) {
                   <Zap class="text-gray-7" />
                 </div>
                 <div class="space-y-2">
-                  <h3 class="text-xl font-medium">What do you want to do?</h3>
+                  <h3 class="text-xl font-medium">你想做什么？</h3>
                   <p class="text-gray-10 text-sm max-w-sm mx-auto">
-                    Pick a starting point or just type below.
+                    选择一个起点或直接在下方输入。
                   </p>
                 </div>
                 <div class="flex justify-center">
@@ -1257,7 +1257,7 @@ export default function SessionView(props: SessionViewProps) {
                       })();
                     }}
                   >
-                    Automate your browser
+                    自动化浏览器
                   </button>
                 </div>
               </div>
@@ -1282,7 +1282,7 @@ export default function SessionView(props: SessionViewProps) {
                             aria-expanded={thinkingExpanded()}
                           >
                             <div class="flex items-center gap-2 min-w-0">
-                              <span class="text-[10px] uppercase tracking-wide text-gray-9">Thinking</span>
+                              <span class="text-[10px] uppercase tracking-wide text-gray-9">思考中</span>
                               <span class="truncate text-gray-12">{thinkingStatus()}</span>
                             </div>
                             <ChevronDown
@@ -1359,7 +1359,7 @@ export default function SessionView(props: SessionViewProps) {
                   class="pointer-events-auto rounded-full border border-gray-6 bg-gray-1/90 px-4 py-2 text-xs text-gray-11 shadow-lg shadow-gray-12/5 backdrop-blur-md hover:bg-gray-2 transition-colors"
                   onClick={() => scrollToLatest("smooth")}
                 >
-                  Jump to latest
+                  跳转到最新
                 </button>
               </div>
             </Show>
@@ -1434,9 +1434,9 @@ export default function SessionView(props: SessionViewProps) {
               type="button"
               onClick={jumpToLatest}
               class="flex items-center gap-2 rounded-full border border-gray-6 bg-gray-2/90 px-3 py-2 text-xs text-gray-11 shadow-lg shadow-gray-12/10 transition-all hover:text-gray-12 hover:border-gray-7"
-              aria-label="Jump to latest message"
+              aria-label="跳转到最新消息"
             >
-              <span>New messages</span>
+              <span>新消息</span>
               <span class="rounded-full bg-gray-12/10 px-2 py-0.5 text-[10px] font-semibold text-gray-12">
                 {unreadCount()}
               </span>
@@ -1491,16 +1491,16 @@ export default function SessionView(props: SessionViewProps) {
                     <Shield size={24} />
                   </div>
                   <div>
-                    <h3 class="text-lg font-semibold text-gray-12">Permission Required</h3>
-                    <p class="text-sm text-gray-11 mt-1">OpenCode is requesting permission to continue.</p>
+                    <h3 class="text-lg font-semibold text-gray-12">需要权限</h3>
+                    <p class="text-sm text-gray-11 mt-1">OpenCode 正在请求权限以继续。</p>
                   </div>
                 </div>
 
                 <div class="bg-gray-1/50 rounded-xl p-4 border border-gray-6 mb-6">
-                  <div class="text-xs text-gray-10 uppercase tracking-wider mb-2 font-semibold">Permission</div>
+                  <div class="text-xs text-gray-10 uppercase tracking-wider mb-2 font-semibold">权限</div>
                   <div class="text-sm text-gray-12 font-mono">{props.activePermission?.permission}</div>
 
-                  <div class="text-xs text-gray-10 uppercase tracking-wider mt-4 mb-2 font-semibold">Scope</div>
+                  <div class="text-xs text-gray-10 uppercase tracking-wider mt-4 mb-2 font-semibold">范围</div>
                   <div class="flex items-center gap-2 text-sm font-mono text-amber-12 bg-amber-1/30 px-2 py-1 rounded border border-amber-7/20">
                     <HardDrive size={12} />
                     {props.activePermission?.patterns.join(", ")}
@@ -1508,7 +1508,7 @@ export default function SessionView(props: SessionViewProps) {
 
                   <Show when={Object.keys(props.activePermission?.metadata ?? {}).length > 0}>
                     <details class="mt-4 rounded-lg bg-gray-1/20 p-2">
-                      <summary class="cursor-pointer text-xs text-gray-11">Details</summary>
+                      <summary class="cursor-pointer text-xs text-gray-11">详情</summary>
                       <pre class="mt-2 whitespace-pre-wrap break-words text-xs text-gray-12">
                         {props.safeStringify(props.activePermission?.metadata)}
                       </pre>
@@ -1526,7 +1526,7 @@ export default function SessionView(props: SessionViewProps) {
                       disabled={props.permissionReplyBusy}
                     >
 
-                    Deny
+                    拒绝
                   </Button>
                   <div class="grid grid-cols-2 gap-2">
                     <Button
@@ -1535,7 +1535,7 @@ export default function SessionView(props: SessionViewProps) {
                       onClick={() => props.activePermission && props.respondPermission(props.activePermission.id, "once")}
                       disabled={props.permissionReplyBusy}
                     >
-                      Once
+                      一次
                     </Button>
                     <Button
                       variant="primary"
@@ -1546,7 +1546,7 @@ export default function SessionView(props: SessionViewProps) {
                       }
                       disabled={props.permissionReplyBusy}
                     >
-                      Allow for session
+                      允许本次会话
                     </Button>
                   </div>
                 </div>
