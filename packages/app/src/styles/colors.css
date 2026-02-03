@@ -205,9 +205,9 @@
   --grass-a10: #007b17c1;
   --grass-a11: #006514d5;
   --grass-a12: #002006df;
-  --gray-1: #fcfcfc;
-  --gray-2: #f9f9f9;
-  --gray-3: #f0f0f0;
+  --gray-1: #faf9f6;
+  --gray-2: #f5f4f1;
+  --gray-3: #edece8;
   --gray-4: #e8e8e8;
   --gray-5: #e0e0e0;
   --gray-6: #d9d9d9;
@@ -978,9 +978,9 @@
       --grass-a10: color(display-p3 0.008 0.388 0 / 0.659);
       --grass-a11: color(display-p3 0.263 0.488 0.261);
       --grass-a12: color(display-p3 0.151 0.233 0.153);
-      --gray-1: color(display-p3 0.988 0.988 0.988);
-      --gray-2: color(display-p3 0.975 0.975 0.975);
-      --gray-3: color(display-p3 0.939 0.939 0.939);
+      --gray-1: color(display-p3 0.98 0.976 0.965);
+      --gray-2: color(display-p3 0.961 0.957 0.945);
+      --gray-3: color(display-p3 0.929 0.925 0.91);
       --gray-4: color(display-p3 0.908 0.908 0.908);
       --gray-5: color(display-p3 0.88 0.88 0.88);
       --gray-6: color(display-p3 0.849 0.849 0.849);

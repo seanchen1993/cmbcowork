@@ -10,7 +10,7 @@ export default function OpenWorkLogo(props: Props): JSX.Element {
   return (
     <img
       src="/openwork-logo.svg"
-      alt="OpenWork"
+      alt="OpenClaw"
       width={size}
       height={size}
       class={`inline-block ${props.class ?? ""}`}
