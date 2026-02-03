@@ -15,7 +15,8 @@
         "title": "OpenWork",
         "width": 1180,
         "height": 820,
-        "resizable": true
+        "resizable": true,
+        "maximized": true
       }
     ],
     "security": {
