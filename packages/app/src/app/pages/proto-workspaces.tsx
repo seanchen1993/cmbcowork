@@ -273,7 +273,7 @@ export default function ProtoWorkspacesView() {
                     <div class="bg-gray-1 rounded-[22px] p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
                       <div class="space-y-2 text-center md:text-left">
                         <h3 class="text-2xl font-semibold text-gray-12">What should we do today?</h3>
-                        <p class="text-gray-11">Describe an outcome. OpenWork will run it and keep an audit trail.</p>
+                        <p class="text-gray-11">Describe an outcome. CMBCowork will run it and keep an audit trail.</p>
                       </div>
                       <div class="w-full md:w-[320px]">
                         <div class="flex items-center gap-2 rounded-2xl border border-gray-6/60 bg-gray-2/50 px-4 py-3">

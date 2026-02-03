@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "OpenWork",
+  "productName": "CMBCowork",
   "version": "0.11.7",
   "identifier": "com.differentai.openwork",
   "build": {
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "OpenWork",
+        "title": "CMBCowork",
         "width": 1180,
         "height": 820,
         "resizable": true,

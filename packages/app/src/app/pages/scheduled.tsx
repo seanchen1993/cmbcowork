@@ -75,11 +75,11 @@ export default function ScheduledTasksView(props: ScheduledTasksViewProps) {
   });
   const sourceDescription = createMemo(() =>
     props.source === "remote"
-      ? "Automations that run on a schedule from the connected OpenWork server."
+      ? "Automations that run on a schedule from the connected CMBCowork server."
       : "Automations that run on a schedule from this device."
   );
   const sourceLabel = createMemo(() =>
-    props.source === "remote" ? "From OpenWork server" : "From local scheduler"
+    props.source === "remote" ? "From CMBCowork server" : "From local scheduler"
   );
   const schedulerLabel = createMemo(() => (props.source === "remote" ? "CMBCowork server" : "Local"));
   const schedulerHint = createMemo(() =>
@@ -90,7 +90,7 @@ export default function ScheduledTasksView(props: ScheduledTasksViewProps) {
   );
   const deleteDescription = createMemo(() =>
     props.source === "remote"
-      ? "This removes the schedule and deletes the job definition from the connected OpenWork server."
+      ? "This removes the schedule and deletes the job definition from the connected CMBCowork server."
       : "This removes the schedule and deletes the job definition from your machine."
   );
 

@@ -386,7 +386,7 @@ function OwpenbotSettings(props: {
         setTelegramFeedback(
           "warning",
           "Token saved, but the messaging bridge is offline.",
-          "Start OpenWork to activate Telegram.",
+          "Start CMBCowork to activate Telegram.",
         );
         return;
       }
@@ -1451,7 +1451,7 @@ export default function SettingsView(props: SettingsViewProps) {
               <div class="flex items-start justify-between gap-4">
                 <div>
                   <div class="text-sm font-medium text-gray-12">Updates</div>
-                  <div class="text-xs text-gray-10">Keep OpenWork up to date.</div>
+                  <div class="text-xs text-gray-10">Keep CMBCowork up to date.</div>
                 </div>
                 <div class="text-xs text-gray-7 font-mono">{props.appVersion ? `v${props.appVersion}` : ""}</div>
               </div>
@@ -1661,7 +1661,7 @@ export default function SettingsView(props: SettingsViewProps) {
               <div class="flex items-center justify-between bg-gray-1 p-3 rounded-xl border border-gray-6 gap-3">
                 <div class="min-w-0">
                   <div class="text-sm text-gray-12">Reset onboarding</div>
-                  <div class="text-xs text-gray-7">Clears OpenWork preferences and restarts the app.</div>
+                  <div class="text-xs text-gray-7">Clears CMBCowork preferences and restarts the app.</div>
                 </div>
                 <Button
                   variant="outline"
@@ -1677,7 +1677,7 @@ export default function SettingsView(props: SettingsViewProps) {
               <div class="flex items-center justify-between bg-gray-1 p-3 rounded-xl border border-gray-6 gap-3">
                 <div class="min-w-0">
                   <div class="text-sm text-gray-12">Reset app data</div>
-                  <div class="text-xs text-gray-7">More aggressive. Clears OpenWork cache + app data.</div>
+                  <div class="text-xs text-gray-7">More aggressive. Clears CMBCowork cache + app data.</div>
                 </div>
                 <Button
                   variant="danger"
@@ -1814,7 +1814,7 @@ export default function SettingsView(props: SettingsViewProps) {
                   <div>
                     <div class="text-sm font-medium text-gray-12">CMBCowork server</div>
                     <div class="text-xs text-gray-10">
-                      Connect to an OpenWork server. Use the URL and access token from your server admin.
+                      Connect to an CMBCowork server. Use the URL and access token from your server admin.
                     </div>
                   </div>
                   <div class={`text-xs px-2 py-1 rounded-full border ${openworkStatusStyle()}`}>
@@ -1828,7 +1828,7 @@ export default function SettingsView(props: SettingsViewProps) {
                     value={openworkUrl()}
                     onInput={(event) => setOpenworkUrl(event.currentTarget.value)}
                     placeholder="http://127.0.0.1:8787"
-                    hint="Use the URL shared by your OpenWork server."
+                    hint="Use the URL shared by your CMBCowork server."
                     disabled={props.busy}
                   />
 
@@ -1923,7 +1923,7 @@ export default function SettingsView(props: SettingsViewProps) {
 
                 <Show when={openworkStatusLabel() !== "Connected"}>
                   <div class="text-xs text-gray-9">
-                    OpenWork server connection needed to sync skills, plugins, and commands.
+                    CMBCowork server connection needed to sync skills, plugins, and commands.
                   </div>
                 </Show>
               </div>
@@ -1989,7 +1989,7 @@ export default function SettingsView(props: SettingsViewProps) {
                         <div class="text-[11px] text-gray-7 font-mono truncate">Openwrk: {openwrkVersionLabel()}</div>
                         <div class="text-[11px] text-gray-7 font-mono truncate">OpenCode: {opencodeVersionLabel()}</div>
                         <div class="text-[11px] text-gray-7 font-mono truncate">
-                          OpenWork server: {openworkServerVersionLabel()}
+                          CMBCowork server: {openworkServerVersionLabel()}
                         </div>
                         <div class="text-[11px] text-gray-7 font-mono truncate">Owpenbot: {owpenbotVersionLabel()}</div>
                       </div>
