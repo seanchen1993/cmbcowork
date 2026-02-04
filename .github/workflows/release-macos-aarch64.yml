@@ -311,6 +311,29 @@ jobs:
         working-directory: packages/desktop
         run: pnpm exec tauri build ${{ matrix.args }}
 
+      - name: Ad-hoc sign macOS app
+        if: matrix.os_type == 'macos'
+        run: |
+          set -euo pipefail
+          
+          # Find the .app bundle
+          APP_PATH=$(find packages/desktop/src-tauri/target -name "*.app" -type d | head -1)
+          
+          if [ -n "$APP_PATH" ]; then
+            echo "Signing app at: $APP_PATH"
+            
+            # Remove any existing signature
+            codesign --remove-signature "$APP_PATH" 2>/dev/null || true
+            
+            # Ad-hoc sign the app (no certificate needed)
+            codesign --force --deep --sign - "$APP_PATH"
+            
+            echo "App signed successfully"
+            codesign -dv "$APP_PATH" 2>&1 || true
+          else
+            echo "Warning: No .app bundle found to sign"
+          fi
+
       - name: Upload artifacts to release
         shell: bash
         env:
