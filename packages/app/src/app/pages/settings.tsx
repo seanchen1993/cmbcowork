@@ -1,9 +1,12 @@
 import { For, Match, Show, Switch, createEffect, createMemo, createSignal, onCleanup, onMount } from "solid-js";
+import { parse, modify, applyEdits } from "jsonc-parser";
 
 import { formatBytes, formatRelativeTime, isTauriRuntime } from "../utils";
 
 import Button from "../components/button";
 import TextInput from "../components/text-input";
+import AddProviderModal from "../components/add-provider-modal";
+import { readOpencodeConfig, writeOpencodeConfig } from "../lib/tauri";
 import SettingsKeybinds, { type KeybindSetting } from "../components/settings-keybinds";
 import { HardDrive, MessageCircle, PlugZap, RefreshCcw, Shield, Smartphone, X } from "lucide-solid";
 import type { OpencodeConnectStatus, ProviderListItem, SettingsTab, StartupPreference } from "../types";
@@ -897,6 +900,102 @@ export default function SettingsView(props: SettingsViewProps) {
     }
   };
 
+  // Custom provider modal state
+  const [addProviderModalOpen, setAddProviderModalOpen] = createSignal(false);
+  const [addProviderLoading, setAddProviderLoading] = createSignal(false);
+  const [addProviderError, setAddProviderError] = createSignal<string | null>(null);
+
+  const handleOpenAddProvider = () => {
+    setAddProviderError(null);
+    setAddProviderModalOpen(true);
+  };
+
+  const handleCloseAddProvider = () => {
+    setAddProviderModalOpen(false);
+    setAddProviderError(null);
+  };
+
+  const handleAddProviderSubmit = async (config: {
+    providerId: string;
+    providerName: string;
+    baseURL: string;
+    modelId: string;
+    modelName: string;
+    apiKey: string;
+  }) => {
+    setAddProviderLoading(true);
+    setAddProviderError(null);
+
+    try {
+      // Read existing global config
+      const globalConfig = await readOpencodeConfig("global", "");
+      let configContent = globalConfig.content || "{}";
+
+      // Parse existing config
+      let parsed: Record<string, unknown> = {};
+      try {
+        parsed = parse(configContent) || {};
+      } catch {
+        parsed = {};
+      }
+
+      // Build provider config using OpenAI-compatible format
+      // See: https://opencode.ai/docs/providers
+      const providerConfig = {
+        npm: "@ai-sdk/openai-compatible",
+        name: config.providerName,
+        options: {
+          baseURL: config.baseURL,
+          apiKey: config.apiKey,
+        },
+        models: {
+          [config.modelId]: {
+            name: config.modelName,
+          },
+        },
+      };
+
+      // Update providers section
+      const providers = (parsed.provider as Record<string, unknown>) || {};
+      providers[config.providerId] = providerConfig;
+
+      // Apply edits using jsonc-parser to preserve comments
+      let edits = modify(configContent, ["provider"], providers, {
+        formattingOptions: { tabSize: 2, insertSpaces: true },
+      });
+      configContent = applyEdits(configContent, edits);
+
+      // Set default model if not already set
+      if (!parsed.model) {
+        edits = modify(configContent, ["model"], `${config.providerId}/${config.modelId}`, {
+          formattingOptions: { tabSize: 2, insertSpaces: true },
+        });
+        configContent = applyEdits(configContent, edits);
+      }
+
+      // Write updated config
+      await writeOpencodeConfig("global", "", configContent);
+
+      // Show success message
+      setAddProviderError(null);
+      setAddProviderModalOpen(false);
+
+      // Show a notification
+      alert(
+        `自定义提供商 "${config.providerName}" 已保存到全局配置。\n\n` +
+        `配置文件位置: ~/.config/opencode/opencode.jsonc\n\n` +
+        `默认模型已设置为: ${config.providerId}/${config.modelId}\n\n` +
+        `重启 OpenCode 后生效。`
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      setAddProviderError(message);
+      throw error;
+    } finally {
+      setAddProviderLoading(false);
+    }
+  };
+
   const [openworkUrl, setOpenworkUrl] = createSignal("");
   const [openworkToken, setOpenworkToken] = createSignal("");
   const [openworkTokenVisible, setOpenworkTokenVisible] = createSignal(false);
@@ -1323,6 +1422,13 @@ export default function SettingsView(props: SettingsViewProps) {
                   disabled={props.busy || props.providerAuthBusy}
                 >
                   {props.providerAuthBusy ? "加载提供商中..." : "连接提供商"}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleOpenAddProvider}
+                  disabled={props.busy || addProviderLoading()}
+                >
+                  添加自定义提供商
                 </Button>
                 <div class="text-xs text-gray-9">{providerSummary()}</div>
               </div>
@@ -2306,6 +2412,14 @@ export default function SettingsView(props: SettingsViewProps) {
           </Show>
         </Match>
       </Switch>
+
+      <AddProviderModal
+        open={addProviderModalOpen()}
+        loading={addProviderLoading()}
+        error={addProviderError()}
+        onClose={handleCloseAddProvider}
+        onSubmit={handleAddProviderSubmit}
+      />
     </section>
   );
 }
