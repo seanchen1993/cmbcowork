@@ -78,11 +78,11 @@ const clamp = (value: number, min: number, max: number) => Math.min(max, Math.ma
 const normalizeText = (value: string) => value.replace(/\u00a0/g, " ");
 
 const MODEL_VARIANT_OPTIONS = [
-  { value: "none", label: "None" },
-  { value: "low", label: "Low" },
-  { value: "medium", label: "Medium" },
-  { value: "high", label: "High" },
-  { value: "xhigh", label: "X-High" },
+  { value: "none", label: "无" },
+  { value: "low", label: "低" },
+  { value: "medium", label: "中" },
+  { value: "high", label: "高" },
+  { value: "xhigh", label: "超高" },
 ];
 
 const partsToText = (parts: ComposerPart[]) =>
@@ -340,8 +340,8 @@ export default function Composer(props: ComposerProps) {
 
     const sections: MentionSection[] = [];
     if (agents.length) sections.push({ title: "Agents", options: agents });
-    if (recentFiles.length) sections.push({ title: "Recent files", options: recentFiles });
-    if (searchFiles.length) sections.push({ title: "Search results", options: searchFiles });
+    if (recentFiles.length) sections.push({ title: "最近文件", options: recentFiles });
+    if (searchFiles.length) sections.push({ title: "搜索结果", options: searchFiles });
     if (!searchFiles.length && query) {
       sections.push({
         title: "Use path",
@@ -552,7 +552,7 @@ export default function Composer(props: ComposerProps) {
 
   const addAttachments = async (files: File[]) => {
     if (props.isRemoteWorkspace) {
-      props.onToast("Attachments are unavailable in remote workspaces.");
+      props.onToast("远程工作区无法使用附件。");
       return;
     }
     const next: ComposerAttachment[] = [];
@@ -832,12 +832,12 @@ export default function Composer(props: ComposerProps) {
             <div class="absolute bottom-full left-[-1px] right-[-1px] z-30">
               <div class="rounded-t-3xl border border-gray-6 border-b-0 bg-gray-2 shadow-2xl overflow-hidden">
                 <div class="px-4 pt-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-8 border-b border-gray-6/30 bg-gray-2">
-                  Commands
+                  命令
                 </div>
                 <div class="space-y-1 p-2 bg-gray-2">
                   <Show
                     when={props.commandMatches.length}
-                    fallback={<div class="px-3 py-2 text-xs text-gray-9">No commands found.</div>}
+                    fallback={<div class="px-3 py-2 text-xs text-gray-9">未找到命令。</div>}
                   >
                     <For each={props.commandMatches}>
                       {(command: CommandItem, idx: () => number) => (
@@ -881,7 +881,7 @@ export default function Composer(props: ComposerProps) {
                     when={mentionOptions().length}
                     fallback={
                       <div class="px-3 py-2 text-xs text-gray-9">
-                        {searchLoading() ? "Searching files..." : "No matches found."}
+                        {searchLoading() ? "正在搜索文件..." : "未找到匹配项。"}
                       </div>
                     }
                   >
@@ -929,7 +929,7 @@ export default function Composer(props: ComposerProps) {
             </div>
           </Show>
 
-          <div class="absolute top-3 left-4 flex items-center gap-3 text-[10px] font-bold text-gray-7 uppercase tracking-widest z-10">
+          <div class="absolute top-3 left-4 flex items-center gap-4 text-[10px] font-bold text-gray-7 uppercase tracking-widest z-10">
             <button
               type="button"
               class="flex items-center gap-1.5 text-gray-7 hover:text-gray-11 transition-colors"
@@ -947,14 +947,14 @@ export default function Composer(props: ComposerProps) {
                 disabled={props.busy}
                 aria-expanded={variantMenuOpen()}
               >
-                <span class="text-gray-8">Variant</span>
+                <span class="text-gray-8">变体</span>
                 <span class="font-mono text-gray-11">{props.modelVariantLabel}</span>
                 <ChevronDown size={12} class="text-gray-8" />
               </button>
               <Show when={variantMenuOpen()}>
                 <div class="absolute left-0 bottom-full mb-2 w-40 rounded-2xl border border-gray-6 bg-gray-1/95 shadow-2xl backdrop-blur-md overflow-hidden z-40">
                   <div class="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-8 border-b border-gray-6/30">
-                    Thinking effort
+                    思考力度
                   </div>
                   <div class="p-2 space-y-1">
                     <For each={MODEL_VARIANT_OPTIONS}>
@@ -973,7 +973,7 @@ export default function Composer(props: ComposerProps) {
                         >
                           <span>{option.label}</span>
                           <Show when={activeVariant() === option.value}>
-                            <span class="text-[10px] uppercase tracking-wider text-gray-9">Active</span>
+                            <span class="text-[10px] uppercase tracking-wider text-gray-9">已启用</span>
                           </Show>
                         </button>
                       )}
@@ -984,7 +984,7 @@ export default function Composer(props: ComposerProps) {
             </div>
           </div>
 
-          <div class="p-3 pt-8 pb-3 px-4">
+          <div class="p-3 pt-5 pb-2 px-4">
             <Show when={props.showNotionBanner}>
               <button
                 type="button"
@@ -1012,7 +1012,7 @@ export default function Composer(props: ComposerProps) {
                       <div class="max-w-[160px]">
                         <div class="truncate text-gray-12">{attachment.name}</div>
                         <div class="text-[10px] text-gray-9">
-                          {attachment.kind === "image" ? "Image" : attachment.mimeType || "File"}
+                          {attachment.kind === "image" ? "图片" : attachment.mimeType || "文件"}
                         </div>
                       </div>
                       <button
@@ -1033,7 +1033,7 @@ export default function Composer(props: ComposerProps) {
               </div>
             </Show>
 
-                   <div class="relative min-h-[120px]">
+                   <div class="relative min-h-[80px]">
               <Show when={props.toast}>
                 <div class="absolute bottom-full right-0 mb-2 z-30 rounded-xl border border-gray-6 bg-gray-1/90 px-3 py-2 text-xs text-gray-11 shadow-lg backdrop-blur-md">
                   {props.toast}
@@ -1043,13 +1043,13 @@ export default function Composer(props: ComposerProps) {
               <div class="flex flex-col gap-2">
                 <div class="flex-1 min-w-0">
                   <Show when={props.isRemoteWorkspace}>
-                    <div class="mb-2 text-[10px] uppercase tracking-wider text-gray-8">Remote workspace</div>
+                    <div class="mb-2 text-[10px] uppercase tracking-wider text-gray-8">远程工作区</div>
                   </Show>
 
                   <div class="relative">
                     <Show when={!props.prompt.trim() && !attachments().length}>
-                      <div class="absolute left-0 top-0 text-gray-6 text-[15px] leading-relaxed pointer-events-none">
-                        How can I help you today?
+                      <div class="absolute left-0 top-4 text-gray-6 text-[15px] leading-relaxed pointer-events-none">
+                        今天想让我做什么？
                       </div>
                     </Show>
                     <div
@@ -1065,7 +1065,7 @@ export default function Composer(props: ComposerProps) {
                       onKeyUp={updateMentionQuery}
                       onClick={updateMentionQuery}
                       onPaste={handlePaste}
-                      class="bg-transparent border-none p-0 pb-12 pr-20 text-gray-12 focus:ring-0 text-[15px] leading-relaxed resize-none min-h-[24px] outline-none relative z-10"
+                      class="bg-transparent border-none p-0 pt-4 pb-8 pr-20 text-gray-12 focus:ring-0 text-[15px] leading-relaxed resize-none min-h-[24px] outline-none relative z-10"
                     />
 
                     <div class="mt-3" ref={props.setAgentPickerRef}>
@@ -1083,7 +1083,7 @@ export default function Composer(props: ComposerProps) {
                             {props.agentLabel}
                           </span>
                           <span class="text-[10px] text-gray-10 font-mono leading-none">
-                            {props.selectedAgent ? "Agent" : "Default"}
+                            {props.selectedAgent ? "代理" : "默认"}
                           </span>
                         </div>
                         <ChevronDown size={14} class="text-gray-10 group-hover:text-gray-11" />
@@ -1092,7 +1092,7 @@ export default function Composer(props: ComposerProps) {
                       <Show when={props.agentPickerOpen}>
                         <div class="absolute left-0 bottom-full mb-2 w-72 rounded-2xl border border-gray-6 bg-gray-1/95 shadow-2xl backdrop-blur-md overflow-hidden">
                           <div class="px-4 pt-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-8 border-b border-gray-6/30">
-                            Session agent
+                            会话代理
                           </div>
                           <div class="max-h-64 overflow-auto p-2 space-y-1">
                             <button
@@ -1102,18 +1102,18 @@ export default function Composer(props: ComposerProps) {
                               }`}
                               onClick={() => props.onSelectAgent(null)}
                             >
-                              <span>Default agent</span>
+                              <span>默认代理</span>
                               <Show when={!props.selectedAgent}>
-                                <span class="text-[10px] uppercase tracking-wider text-gray-9">Active</span>
+                                <span class="text-[10px] uppercase tracking-wider text-gray-9">已启用</span>
                               </Show>
                             </button>
                             <Show
                               when={!props.agentPickerBusy}
-                              fallback={<div class="px-3 py-2 text-xs text-gray-9">Loading agents...</div>}
+                              fallback={<div class="px-3 py-2 text-xs text-gray-9">正在加载代理...</div>}
                             >
                               <Show
                                 when={props.agentOptions.length}
-                                fallback={<div class="px-3 py-2 text-xs text-gray-9">No agents available.</div>}
+                                fallback={<div class="px-3 py-2 text-xs text-gray-9">暂无可用代理。</div>}
                               >
                                 <For each={props.agentOptions}>
                                   {(agent: Agent) => (
@@ -1128,7 +1128,7 @@ export default function Composer(props: ComposerProps) {
                                     >
                                       <span>{agent.name}</span>
                                       <Show when={props.selectedAgent === agent.name}>
-                                        <span class="text-[10px] uppercase tracking-wider text-gray-9">Active</span>
+                                        <span class="text-[10px] uppercase tracking-wider text-gray-9">已启用</span>
                                       </Show>
                                     </button>
                                   )}
@@ -1140,17 +1140,11 @@ export default function Composer(props: ComposerProps) {
                             </Show>
                           </div>
                           <div class="border-t border-gray-6/40 px-4 py-2 text-[10px] text-gray-9">
-                            Tip: use /agent-next or /agent-prev to cycle.
+                            提示：使用 /agent-next 或 /agent-prev 切换。
                           </div>
                         </div>
                       </Show>
                     </div>
-
-                    <Show when={!props.prompt.trim() && !attachments().length}>
-                      <div class="mt-2 text-[10px] text-gray-8">
-                        Enter to send · Shift+Enter for newline
-                      </div>
-                    </Show>
 
                     <div class="absolute bottom-0 right-0 z-20 flex items-center gap-2">
                       <input
@@ -1179,11 +1173,7 @@ export default function Composer(props: ComposerProps) {
                           fileInputRef?.click();
                         }}
                         disabled={attachmentsDisabled()}
-                        title={
-                          attachmentsDisabled()
-                            ? "Attachments are unavailable in remote workspaces."
-                            : "Attach files"
-                        }
+                        title={attachmentsDisabled() ? "远程工作区无法使用附件。" : "添加附件"}
                       >
                         <Paperclip size={16} />
                       </button>
@@ -1196,7 +1186,7 @@ export default function Composer(props: ComposerProps) {
                             ? "bg-gray-4 text-gray-8 cursor-not-allowed"
                             : "bg-gray-12 text-gray-1 hover:scale-105 active:scale-95"
                         }`}
-                        title="Run"
+                        title="发送"
                       >
                         <ArrowRight size={18} />
                       </button>

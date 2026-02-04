@@ -80,7 +80,7 @@ export default function SessionSidebar(props: SidebarProps) {
           <span class="h-6 w-6 rounded-full border border-gray-6 bg-gray-1 flex items-center justify-center text-gray-10">
             <Plus size={14} />
           </span>
-          <span class="font-medium">New task</span>
+          <span class="font-medium">新任务</span>
         </button>
       </div>
 
@@ -88,14 +88,14 @@ export default function SessionSidebar(props: SidebarProps) {
         <div class="space-y-6">
           <div>
             <div class="flex items-center justify-between text-xs text-gray-9 font-semibold mb-2 px-2">
-              <span>Recents</span>
+              <span>最近</span>
             </div>
             <div class="space-y-1">
               <Show
                 when={props.sessions.length > 0}
                 fallback={
                   <div class="px-3 py-2 rounded-lg border border-dashed border-gray-6 text-xs text-gray-9">
-                    No tasks yet. Start a task to see your work here.
+                    暂无任务，开始一个任务后会出现在这里。
                   </div>
                 }
               >
@@ -145,7 +145,7 @@ export default function SessionSidebar(props: SidebarProps) {
       </div>
 
       <div class="px-4 pb-4 text-[11px] text-gray-9 leading-relaxed">
-        These tasks run locally and aren't synced across devices.
+        这些任务仅在本地运行，不会在设备间同步。
       </div>
 
       <Show when={contextMenu()}>
@@ -172,7 +172,7 @@ export default function SessionSidebar(props: SidebarProps) {
                   closeContextMenu();
                 }}
               >
-                New task
+                新任务
               </button>
               <button
                 class="w-full text-left px-3 py-2 text-sm rounded-lg text-red-11 hover:bg-red-1/40 transition-colors"
@@ -182,7 +182,7 @@ export default function SessionSidebar(props: SidebarProps) {
                   closeContextMenu();
                 }}
               >
-                Delete session
+                删除会话
               </button>
             </div>
           </div>

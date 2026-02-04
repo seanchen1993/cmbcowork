@@ -176,6 +176,34 @@ export default function StatusBar(props: StatusBarProps) {
   return (
     <div class="border-t border-gray-6 bg-gray-1/90 backdrop-blur-md">
       <div class="mx-auto max-w-5xl px-4 py-2 flex flex-wrap items-center gap-3 text-xs">
+        <div class="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            class="h-7 px-2.5 py-0 text-xs"
+            onClick={props.onOpenMessaging}
+            title={messagingMeta().label}
+          >
+            <span class="relative">
+              <MessageCircle class={`w-4 h-4 ${messagingMeta().text}`} />
+              <span class={`absolute -right-1 -bottom-1 w-2 h-2 rounded-full ${messagingMeta().dot}`} />
+            </span>
+            <Show when={props.developerMode}>
+              <span class="text-gray-11 font-medium">Messaging</span>
+            </Show>
+          </Button>
+          <Button
+            variant="ghost"
+            class="h-7 px-2.5 py-0 text-xs"
+            onClick={props.onOpenSettings}
+            title="Settings"
+          >
+            <Settings class="w-4 h-4" />
+            <Show when={props.developerMode}>
+              <span class="text-gray-11 font-medium">Settings</span>
+            </Show>
+          </Button>
+        </div>
+        <div class="w-px h-4 bg-gray-6/70" />
         <div
           class="flex items-center gap-2"
           title={`OpenCode Engine: ${opencodeStatusMeta().label}`}
@@ -198,45 +226,6 @@ export default function StatusBar(props: StatusBarProps) {
             <span class="text-gray-11 font-medium">CMBCowork</span>
             <span class={openworkStatusMeta().text}>{openworkStatusMeta().label}</span>
           </Show>
-        </div>
-        <div class="ml-auto flex items-center gap-2">
-          <Button
-            variant="ghost"
-            class="h-7 px-2.5 py-0 text-xs"
-            onClick={props.onOpenMessaging}
-            title={messagingMeta().label}
-          >
-            <span class="relative">
-              <MessageCircle class={`w-4 h-4 ${messagingMeta().text}`} />
-              <span class={`absolute -right-1 -bottom-1 w-2 h-2 rounded-full ${messagingMeta().dot}`} />
-            </span>
-            <Show when={props.developerMode}>
-              <span class="text-gray-11 font-medium">Messaging</span>
-            </Show>
-          </Button>
-          <Show when={tipVisible() && activeTip()}>
-            <button
-              type="button"
-              class="flex h-7 items-center gap-2 rounded-full border border-gray-6/70 bg-gray-2/40 px-3 text-xs text-gray-10 transition-colors hover:bg-gray-2/60"
-              onClick={() => runAction(activeTip()?.action)}
-              title={activeTip()?.label}
-              aria-label={activeTip()?.label}
-            >
-              <span class="uppercase tracking-[0.2em] text-[10px] text-gray-8">Tip</span>
-              <span class="text-gray-11 font-medium">{activeTip()?.label}</span>
-            </button>
-          </Show>
-          <Button
-            variant="ghost"
-            class="h-7 px-2.5 py-0 text-xs"
-            onClick={props.onOpenSettings}
-            title="Settings"
-          >
-            <Settings class="w-4 h-4" />
-            <Show when={props.developerMode}>
-              <span class="text-gray-11 font-medium">Settings</span>
-            </Show>
-          </Button>
         </div>
       </div>
     </div>

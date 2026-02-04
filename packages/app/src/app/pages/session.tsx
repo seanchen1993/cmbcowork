@@ -841,19 +841,19 @@ export default function SessionView(props: SessionViewProps) {
   };
 
   const quickActions = [
-    { label: "Create a file", icon: FileText, onClick: () => applyQuickPrompt("Create a file") },
-    { label: "Crunch data", icon: BarChart3, onClick: () => applyQuickPrompt("Crunch data") },
+    { label: "创建文件", icon: FileText, onClick: () => applyQuickPrompt("创建一个文件") },
+    { label: "整理数据", icon: BarChart3, onClick: () => applyQuickPrompt("整理数据") },
     {
-      label: "Make a prototype",
+      label: "做个原型",
       icon: Sparkles,
       onClick: async () => {
         const command = await ensureBrowserSetupCommand();
         if (command) runOpenCodeCommand(command);
       },
     },
-    { label: "Organize files", icon: Folder, onClick: () => applyQuickPrompt("Organize files") },
-    { label: "Prep for a meeting", icon: Check, onClick: () => applyQuickPrompt("Prep for a meeting") },
-    { label: "Draft a message", icon: Copy, onClick: () => applyQuickPrompt("Draft a message") },
+    { label: "整理文件", icon: Folder, onClick: () => applyQuickPrompt("整理文件") },
+    { label: "准备会议", icon: Check, onClick: () => applyQuickPrompt("准备一次会议") },
+    { label: "起草消息", icon: Copy, onClick: () => applyQuickPrompt("起草一条消息") },
   ];
 
   const buildHelpPreview = () => {
@@ -1077,8 +1077,8 @@ export default function SessionView(props: SessionViewProps) {
       props.registerCommand({
         id: `command.${command.name}`,
         title: `/${command.name}`,
-        category: "Commands",
-        description: command.description || "Run a saved command",
+        category: "命令",
+        description: command.description || "运行已保存的命令",
         slash: command.name,
         scope: "session",
         onSelect: (context) => runOpenCodeCommand(command, context),
@@ -1120,7 +1120,7 @@ export default function SessionView(props: SessionViewProps) {
       : list;
     return matches.map((command) => ({
       id: command.slash!,
-      description: command.description || "Run a command",
+      description: command.description || "运行命令",
       needsArgs: commandNeedsArgs().get(command.slash ?? "") ?? false,
     }));
   });
@@ -1245,7 +1245,6 @@ export default function SessionView(props: SessionViewProps) {
               title="返回控制台"
             >
               <ArrowRight class="rotate-180 w-5 h-5" />
-              <span class="hidden md:inline text-xs">返回</span>
             </Button>
              <WorkspaceChip
                workspace={props.activeWorkspaceDisplay}
@@ -1306,30 +1305,17 @@ export default function SessionView(props: SessionViewProps) {
               <Show when={props.messages.length === 0}>
                 <div class="relative min-h-full">
                   <div class="px-6 pt-6">
-                    <div class="mx-auto max-w-3xl pb-40">
+                  <div class="mx-auto max-w-3xl pb-12">
                       <div class="text-center space-y-4">
-                        <div class="w-14 h-14 bg-gray-2 rounded-2xl mx-auto flex items-center justify-center border border-gray-6">
-                          <Sparkles class="text-gray-8" />
-                        </div>
+                      <div class="mx-auto flex items-center justify-center">
+                        <span class="text-4xl" aria-hidden="true">🦞</span>
+                      </div>
                         <h3 class="text-2xl md:text-3xl font-semibold text-gray-12">
-                          Let's knock something off your list
+                        一起把待办划掉一件
                         </h3>
                       </div>
 
-                      <div class="mt-6 rounded-2xl border border-gray-6 bg-gray-1/70 px-4 py-3 text-sm text-gray-11 shadow-sm">
-                        <div class="flex items-start gap-3">
-                          <div class="mt-0.5 h-6 w-6 rounded-full bg-amber-2 border border-amber-6 flex items-center justify-center text-amber-10">
-                            <Sparkles size={14} />
-                          </div>
-                          <div class="min-w-0">
-                            Cowork is an early research preview. New improvements ship frequently.
-                            <span class="text-gray-12 underline underline-offset-2"> Learn more</span> or
-                            <span class="text-gray-12 underline underline-offset-2"> give us feedback.</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="mt-6 grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <div class="mt-6 grid grid-cols-2 md:grid-cols-3 gap-3">
                         <For each={quickActions}>
                           {(action) => {
                             const Icon = action.icon;
@@ -1348,12 +1334,6 @@ export default function SessionView(props: SessionViewProps) {
                           }}
                         </For>
                       </div>
-                    </div>
-                  </div>
-
-                  <div class="absolute left-0 right-0 bottom-10 px-6">
-                    <div class="mx-auto max-w-3xl">
-                      {renderComposer("inline")}
                     </div>
                   </div>
                 </div>
@@ -1463,9 +1443,7 @@ export default function SessionView(props: SessionViewProps) {
               <div ref={(el) => (messagesEndEl = el)} />
             </div>
 
-            <Show when={props.messages.length > 0}>
-              {renderComposer("dock")}
-            </Show>
+            {renderComposer("dock")}
           </div>
 
           <aside class="hidden lg:flex w-72 border-l border-gray-6 bg-gray-1 flex-col">
