@@ -31,4 +31,4 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build web
-        run: pnpm --filter @different-ai/openwork build:web
+        run: pnpm --filter @different-ai/openwork-ui build
