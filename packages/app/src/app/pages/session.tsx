@@ -20,7 +20,7 @@ import type {
   WorkspaceDisplay,
 } from "../types";
 
-import { ArrowRight, ChevronDown, HardDrive, Shield, Zap } from "lucide-solid";
+import { ArrowRight, BarChart3, Check, ChevronDown, Copy, FileText, Folder, HardDrive, Shield, Sparkles } from "lucide-solid";
 
 import Button from "../components/button";
 import RenameSessionModal from "../components/rename-session-modal";
@@ -836,6 +836,26 @@ export default function SessionView(props: SessionViewProps) {
     if (shouldClear) clearPrompt();
   };
 
+  const applyQuickPrompt = (value: string) => {
+    props.setPrompt(value);
+  };
+
+  const quickActions = [
+    { label: "Create a file", icon: FileText, onClick: () => applyQuickPrompt("Create a file") },
+    { label: "Crunch data", icon: BarChart3, onClick: () => applyQuickPrompt("Crunch data") },
+    {
+      label: "Make a prototype",
+      icon: Sparkles,
+      onClick: async () => {
+        const command = await ensureBrowserSetupCommand();
+        if (command) runOpenCodeCommand(command);
+      },
+    },
+    { label: "Organize files", icon: Folder, onClick: () => applyQuickPrompt("Organize files") },
+    { label: "Prep for a meeting", icon: Check, onClick: () => applyQuickPrompt("Prep for a meeting") },
+    { label: "Draft a message", icon: Copy, onClick: () => applyQuickPrompt("Draft a message") },
+  ];
+
   const buildHelpPreview = () => {
     const commands = slashCommands().map((command) => `/${command.slash}`);
     return formatListHint(commands);
@@ -1165,6 +1185,52 @@ export default function SessionView(props: SessionViewProps) {
     setUnreadCount(0);
   };
 
+  const gridBackgroundStyle = {
+    "background-image":
+      "linear-gradient(to right, rgba(148, 163, 184, 0.14) 1px, transparent 1px), linear-gradient(to bottom, rgba(148, 163, 184, 0.14) 1px, transparent 1px)",
+    "background-size": "24px 24px",
+  } as const;
+
+  const renderComposer = (layout: "dock" | "inline") => (
+    <Composer
+      prompt={props.prompt}
+      busy={props.busy}
+      layout={layout}
+      onSend={handleSendPrompt}
+      onDraftChange={handleDraftChange}
+      commandMatches={commandMatches()}
+      onRunCommand={handleRunCommand}
+      onInsertCommand={handleInsertCommand}
+      selectedModelLabel={props.selectedSessionModelLabel || "Model"}
+      onModelClick={props.openSessionModelPicker}
+      modelVariantLabel={props.modelVariantLabel}
+      modelVariant={props.modelVariant}
+      onModelVariantChange={props.setModelVariant}
+      agentLabel={agentLabel()}
+      selectedAgent={props.selectedSessionAgent}
+      agentPickerOpen={agentPickerOpen()}
+      agentPickerBusy={agentPickerBusy()}
+      agentPickerError={agentPickerError()}
+      agentOptions={agentOptions()}
+      onToggleAgentPicker={openAgentPicker}
+      onSelectAgent={(agent) => {
+        applySessionAgent(agent);
+        setAgentPickerOpen(false);
+      }}
+      setAgentPickerRef={(el) => {
+        agentPickerRef = el;
+      }}
+      showNotionBanner={props.showTryNotionPrompt}
+      onNotionBannerClick={props.onTryNotionPrompt}
+      toast={commandToast()}
+      onToast={(message) => setCommandToast(message)}
+      listAgents={props.listAgents}
+      recentFiles={props.workingFiles}
+      searchFiles={props.searchFiles}
+      isRemoteWorkspace={props.activeWorkspaceDisplay.workspaceType === "remote"}
+    />
+  );
+
   return (
     <div class="h-screen flex flex-col bg-gray-1 text-gray-12 relative pb-16 md:pb-12">
         <header class="h-16 border-b border-gray-6 flex items-center justify-between px-6 bg-gray-1/80 backdrop-blur-md z-10 sticky top-0">
@@ -1229,142 +1295,177 @@ export default function SessionView(props: SessionViewProps) {
               />
           </aside>
 
-          <div
-            class="flex-1 overflow-y-auto pt-6 md:pt-10 scroll-smooth relative"
-            ref={(el) => (chatContainerEl = el)}
-          >
-            <Show when={props.messages.length === 0}>
-              <div class="text-center py-16 px-6 space-y-6">
-                <div class="w-16 h-16 bg-gray-2 rounded-3xl mx-auto flex items-center justify-center border border-gray-6">
-                  <Zap class="text-gray-7" />
-                </div>
-                <div class="space-y-2">
-                  <h3 class="text-xl font-medium">你想做什么？</h3>
-                  <p class="text-gray-10 text-sm max-w-sm mx-auto">
-                    选择一个起点或直接在下方输入。
-                  </p>
-                </div>
-                <div class="flex justify-center">
-                  <button
-                    type="button"
-                    class="px-4 py-2.5 rounded-xl border border-gray-6 bg-gray-2 text-sm text-gray-12 hover:bg-gray-3 hover:border-gray-7 transition-all"
-                    onClick={() => {
-                      void (async () => {
-                        const command = await ensureBrowserSetupCommand();
-                        if (command) {
-                          runOpenCodeCommand(command);
-                        }
-                      })();
-                    }}
-                  >
-                    自动化浏览器
-                  </button>
-                </div>
-              </div>
-            </Show>
+          <div class="flex-1 flex flex-col overflow-hidden">
+            <div
+              class={`flex-1 pt-6 md:pt-10 scroll-smooth relative ${
+                props.messages.length === 0 ? "overflow-hidden" : "overflow-y-auto"
+              }`}
+              style={gridBackgroundStyle}
+              ref={(el) => (chatContainerEl = el)}
+            >
+              <Show when={props.messages.length === 0}>
+                <div class="relative min-h-full">
+                  <div class="px-6 pt-6">
+                    <div class="mx-auto max-w-3xl pb-40">
+                      <div class="text-center space-y-4">
+                        <div class="w-14 h-14 bg-gray-2 rounded-2xl mx-auto flex items-center justify-center border border-gray-6">
+                          <Sparkles class="text-gray-8" />
+                        </div>
+                        <h3 class="text-2xl md:text-3xl font-semibold text-gray-12">
+                          Let's knock something off your list
+                        </h3>
+                      </div>
 
-            <MessageList 
-              messages={props.messages}
-              developerMode={props.developerMode}
-              showThinking={props.showThinking}
-              expandedStepIds={props.expandedStepIds}
-              setExpandedStepIds={props.setExpandedStepIds}
-              footer={
-                showRunIndicator() ? (
-                  <div class="flex justify-start pl-2">
-                    <div class="w-full max-w-[68ch] space-y-2">
-                      <Show when={thinkingStatus()}>
-                        <div class="rounded-xl border border-gray-6/70 bg-gray-2/40 px-3 py-2 text-xs text-gray-11">
-                          <button
-                            type="button"
-                            class="w-full flex items-center justify-between gap-3 text-left"
-                            onClick={() => setThinkingExpanded((prev) => !prev)}
-                            aria-expanded={thinkingExpanded()}
-                          >
-                            <div class="flex items-center gap-2 min-w-0">
-                              <span class="text-[10px] uppercase tracking-wide text-gray-9">思考中</span>
-                              <span class="truncate text-gray-12">{thinkingStatus()}</span>
-                            </div>
-                            <ChevronDown
-                              size={12}
-                              class={`text-gray-8 transition-transform ${thinkingExpanded() ? "rotate-180" : ""}`}
-                            />
-                          </button>
-                          <Show when={thinkingExpanded() && thinkingDetail()}>
-                            {(detail) => (
-                              <div class="mt-2 text-xs text-gray-11">
-                                <div class="text-gray-12">{detail().title}</div>
-                                <Show when={detail().detail}>
-                                  <div class="mt-1 whitespace-pre-wrap text-gray-10">{detail().detail}</div>
-                                </Show>
-                              </div>
-                            )}
-                          </Show>
+                      <div class="mt-6 rounded-2xl border border-gray-6 bg-gray-1/70 px-4 py-3 text-sm text-gray-11 shadow-sm">
+                        <div class="flex items-start gap-3">
+                          <div class="mt-0.5 h-6 w-6 rounded-full bg-amber-2 border border-amber-6 flex items-center justify-center text-amber-10">
+                            <Sparkles size={14} />
+                          </div>
+                          <div class="min-w-0">
+                            Cowork is an early research preview. New improvements ship frequently.
+                            <span class="text-gray-12 underline underline-offset-2"> Learn more</span> or
+                            <span class="text-gray-12 underline underline-offset-2"> give us feedback.</span>
+                          </div>
                         </div>
-                      </Show>
-                      <div
-                        class={`w-full flex items-center justify-between gap-3 text-xs ${
-                          runPhase() === "error" ? "text-red-11" : "text-gray-9"
-                        }`}
-                        role="status"
-                        aria-live="polite"
-                      >
-                        <div class="flex items-center gap-2 min-w-0">
-                          <Show
-                            when={runPhase() === "responding"}
-                            fallback={
-                              <span
-                                class={`h-1.5 w-1.5 rounded-full ${
-                                  runPhase() === "error" ? "bg-red-9/80" : "bg-gray-8/80"
-                                }`}
-                              />
-                            }
-                          >
-                            <span class="flex items-center gap-1">
-                              <span
-                                class={`h-1.5 w-1.5 rounded-full animate-pulse ${
-                                  runPhase() === "error" ? "bg-red-9/80" : "bg-gray-8/80"
-                                }`}
-                              />
-                              <span
-                                class={`h-1.5 w-1.5 rounded-full animate-pulse ${
-                                  runPhase() === "error" ? "bg-red-9/60" : "bg-gray-8/60"
-                                }`}
-                                style={{ "animation-delay": "120ms" }}
-                              />
-                              <span
-                                class={`h-1.5 w-1.5 rounded-full animate-pulse ${
-                                  runPhase() === "error" ? "bg-red-9/40" : "bg-gray-8/40"
-                                }`}
-                                style={{ "animation-delay": "240ms" }}
-                              />
-                            </span>
-                          </Show>
-                          <span class="truncate">{runLabel()}</span>
-                        </div>
-                        <Show when={props.developerMode}>
-                          <span class="shrink-0 text-[10px] text-gray-8">{runElapsedLabel()}</span>
-                        </Show>
+                      </div>
+
+                      <div class="mt-6 grid grid-cols-2 md:grid-cols-3 gap-3">
+                        <For each={quickActions}>
+                          {(action) => {
+                            const Icon = action.icon;
+                            return (
+                              <button
+                                type="button"
+                                class="flex items-center gap-3 rounded-xl border border-gray-6 bg-gray-1/70 px-4 py-3 text-sm text-gray-12 hover:bg-gray-2 hover:border-gray-7 transition-colors"
+                                onClick={() => void action.onClick?.()}
+                              >
+                                <div class="h-9 w-9 rounded-lg border border-gray-6 bg-gray-2 flex items-center justify-center text-gray-10">
+                                  <Icon size={18} />
+                                </div>
+                                <span class="text-left">{action.label}</span>
+                              </button>
+                            );
+                          }}
+                        </For>
                       </div>
                     </div>
                   </div>
-                ) : undefined
-              }
-            />
 
-            <Show when={!autoScrollEnabled() && props.messages.length > 0}>
-              <div class="sticky bottom-24 z-20 flex justify-center pointer-events-none px-4">
-                <button
-                  type="button"
-                  class="pointer-events-auto rounded-full border border-gray-6 bg-gray-1/90 px-4 py-2 text-xs text-gray-11 shadow-lg shadow-gray-12/5 backdrop-blur-md hover:bg-gray-2 transition-colors"
-                  onClick={() => scrollToLatest("smooth")}
-                >
-                  跳转到最新
-                </button>
-              </div>
+                  <div class="absolute left-0 right-0 bottom-10 px-6">
+                    <div class="mx-auto max-w-3xl">
+                      {renderComposer("inline")}
+                    </div>
+                  </div>
+                </div>
+              </Show>
+
+              <MessageList 
+                messages={props.messages}
+                developerMode={props.developerMode}
+                showThinking={props.showThinking}
+                expandedStepIds={props.expandedStepIds}
+                setExpandedStepIds={props.setExpandedStepIds}
+                footer={
+                  showRunIndicator() ? (
+                    <div class="flex justify-start pl-2">
+                      <div class="w-full max-w-[68ch] space-y-2">
+                        <Show when={thinkingStatus()}>
+                          <div class="rounded-xl border border-gray-6/70 bg-gray-2/40 px-3 py-2 text-xs text-gray-11">
+                            <button
+                              type="button"
+                              class="w-full flex items-center justify-between gap-3 text-left"
+                              onClick={() => setThinkingExpanded((prev) => !prev)}
+                              aria-expanded={thinkingExpanded()}
+                            >
+                              <div class="flex items-center gap-2 min-w-0">
+                                <span class="text-[10px] uppercase tracking-wide text-gray-9">思考中</span>
+                                <span class="truncate text-gray-12">{thinkingStatus()}</span>
+                              </div>
+                              <ChevronDown
+                                size={12}
+                                class={`text-gray-8 transition-transform ${thinkingExpanded() ? "rotate-180" : ""}`}
+                              />
+                            </button>
+                            <Show when={thinkingExpanded() && thinkingDetail()}>
+                              {(detail) => (
+                                <div class="mt-2 text-xs text-gray-11">
+                                  <div class="text-gray-12">{detail().title}</div>
+                                  <Show when={detail().detail}>
+                                    <div class="mt-1 whitespace-pre-wrap text-gray-10">{detail().detail}</div>
+                                  </Show>
+                                </div>
+                              )}
+                            </Show>
+                          </div>
+                        </Show>
+                        <div
+                          class={`w-full flex items-center justify-between gap-3 text-xs ${
+                            runPhase() === "error" ? "text-red-11" : "text-gray-9"
+                          }`}
+                          role="status"
+                          aria-live="polite"
+                        >
+                          <div class="flex items-center gap-2 min-w-0">
+                            <Show
+                              when={runPhase() === "responding"}
+                              fallback={
+                                <span
+                                  class={`h-1.5 w-1.5 rounded-full ${
+                                    runPhase() === "error" ? "bg-red-9/80" : "bg-gray-8/80"
+                                  }`}
+                                />
+                              }
+                            >
+                              <span class="flex items-center gap-1">
+                                <span
+                                  class={`h-1.5 w-1.5 rounded-full animate-pulse ${
+                                    runPhase() === "error" ? "bg-red-9/80" : "bg-gray-8/80"
+                                  }`}
+                                />
+                                <span
+                                  class={`h-1.5 w-1.5 rounded-full animate-pulse ${
+                                    runPhase() === "error" ? "bg-red-9/60" : "bg-gray-8/60"
+                                  }`}
+                                  style={{ "animation-delay": "120ms" }}
+                                />
+                                <span
+                                  class={`h-1.5 w-1.5 rounded-full animate-pulse ${
+                                    runPhase() === "error" ? "bg-red-9/40" : "bg-gray-8/40"
+                                  }`}
+                                  style={{ "animation-delay": "240ms" }}
+                                />
+                              </span>
+                            </Show>
+                            <span class="truncate">{runLabel()}</span>
+                          </div>
+                          <Show when={props.developerMode}>
+                            <span class="shrink-0 text-[10px] text-gray-8">{runElapsedLabel()}</span>
+                          </Show>
+                        </div>
+                      </div>
+                    </div>
+                  ) : undefined
+                }
+              />
+
+              <Show when={!autoScrollEnabled() && props.messages.length > 0}>
+                <div class="sticky bottom-24 z-20 flex justify-center pointer-events-none px-4">
+                  <button
+                    type="button"
+                    class="pointer-events-auto rounded-full border border-gray-6 bg-gray-1/90 px-4 py-2 text-xs text-gray-11 shadow-lg shadow-gray-12/5 backdrop-blur-md hover:bg-gray-2 transition-colors"
+                    onClick={() => scrollToLatest("smooth")}
+                  >
+                    跳转到最新
+                  </button>
+                </div>
+              </Show>
+
+              <div ref={(el) => (messagesEndEl = el)} />
+            </div>
+
+            <Show when={props.messages.length > 0}>
+              {renderComposer("dock")}
             </Show>
-
-            <div ref={(el) => (messagesEndEl = el)} />
           </div>
 
           <aside class="hidden lg:flex w-72 border-l border-gray-6 bg-gray-1 flex-col">
@@ -1378,6 +1479,8 @@ export default function SessionView(props: SessionViewProps) {
               skillsStatus={props.skillsStatus}
               authorizedDirs={props.authorizedDirs}
               workingFiles={props.workingFiles}
+              todos={props.todos}
+              showDetails={props.messages.length > 0}
               workspaceRoot={props.activeWorkspaceRoot}
               expandedSections={props.expandedSidebarSections}
               onToggleSection={(section) =>
@@ -1390,43 +1493,6 @@ export default function SessionView(props: SessionViewProps) {
             />
           </aside>
         </div>
-
-        <Composer
-          prompt={props.prompt}
-          busy={props.busy}
-          onSend={handleSendPrompt}
-          onDraftChange={handleDraftChange}
-          commandMatches={commandMatches()}
-          onRunCommand={handleRunCommand}
-          onInsertCommand={handleInsertCommand}
-          selectedModelLabel={props.selectedSessionModelLabel || "Model"}
-          onModelClick={props.openSessionModelPicker}
-          modelVariantLabel={props.modelVariantLabel}
-          modelVariant={props.modelVariant}
-          onModelVariantChange={props.setModelVariant}
-          agentLabel={agentLabel()}
-          selectedAgent={props.selectedSessionAgent}
-          agentPickerOpen={agentPickerOpen()}
-          agentPickerBusy={agentPickerBusy()}
-          agentPickerError={agentPickerError()}
-          agentOptions={agentOptions()}
-          onToggleAgentPicker={openAgentPicker}
-          onSelectAgent={(agent) => {
-            applySessionAgent(agent);
-            setAgentPickerOpen(false);
-          }}
-          setAgentPickerRef={(el) => {
-            agentPickerRef = el;
-          }}
-          showNotionBanner={props.showTryNotionPrompt}
-          onNotionBannerClick={props.onTryNotionPrompt}
-          toast={commandToast()}
-          onToast={(message) => setCommandToast(message)}
-          listAgents={props.listAgents}
-          recentFiles={props.workingFiles}
-          searchFiles={props.searchFiles}
-          isRemoteWorkspace={props.activeWorkspaceDisplay.workspaceType === "remote"}
-        />
 
         <Show when={unreadCount() > 0}>
           <div class="fixed bottom-24 right-6 z-40">

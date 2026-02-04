@@ -53,6 +53,7 @@ type ComposerProps = {
   recentFiles: string[];
   searchFiles: (query: string) => Promise<string[]>;
   isRemoteWorkspace: boolean;
+  layout?: "dock" | "inline";
 };
 
 const MAX_ATTACHMENT_BYTES = 8 * 1024 * 1024;
@@ -802,11 +803,22 @@ export default function Composer(props: ComposerProps) {
     onCleanup(() => window.removeEventListener("openwork:focusPrompt", handler));
   });
 
+  const isInline = () => props.layout === "inline";
+  const wrapperClass = () =>
+    isInline()
+      ? "relative z-10 p-0"
+      : "sticky bottom-0 z-20 p-4 bg-transparent";
+  const widthClass = () => (isInline() ? "max-w-none" : "max-w-3xl");
+  const shellClass = () =>
+    isInline()
+      ? "bg-gray-1/80 border border-gray-6 rounded-2xl shadow-lg"
+      : "bg-gray-1/90 border border-gray-6 rounded-2xl shadow-lg";
+
   return (
-    <div class="p-4 border-t border-gray-6 bg-gray-1 sticky bottom-0 z-20">
-      <div class="max-w-2xl mx-auto">
+    <div class={wrapperClass()}>
+      <div class={`${widthClass()} mx-auto`}>
         <div
-          class={`bg-gray-2 border border-gray-6 rounded-3xl overflow-visible transition-all shadow-2xl relative group/input ${
+          class={`${shellClass()} overflow-visible transition-all relative group/input ${
             commandMenuOpen() || mentionOpen()
               ? "rounded-t-none border-t-transparent"
               : "focus-within:ring-1 focus-within:ring-gray-7"
@@ -1037,7 +1049,7 @@ export default function Composer(props: ComposerProps) {
                   <div class="relative">
                     <Show when={!props.prompt.trim() && !attachments().length}>
                       <div class="absolute left-0 top-0 text-gray-6 text-[15px] leading-relaxed pointer-events-none">
-                        Ask CMBCowork...
+                        How can I help you today?
                       </div>
                     </Show>
                     <div
