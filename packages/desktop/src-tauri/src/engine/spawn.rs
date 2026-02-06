@@ -7,6 +7,43 @@ use tauri_plugin_shell::ShellExt;
 
 use crate::paths::{candidate_xdg_config_dirs, candidate_xdg_data_dirs, maybe_infer_xdg_home};
 
+/// On Windows, the bundled Bun runtime may try to read `B:\~BUN\locales\en_US.json`.
+/// If the B: drive does not exist, this causes an EPERM error and `opencode serve` fails.
+/// This function works around the issue by creating a virtual B: drive via `subst` and
+/// placing a minimal locale file at the expected path.
+#[cfg(target_os = "windows")]
+fn ensure_bun_locale_workaround() {
+    use std::fs;
+    use std::process::Command;
+
+    let target = Path::new("B:\\~BUN\\locales\\en_US.json");
+    if target.exists() {
+        return; // Already accessible, nothing to do.
+    }
+
+    // Build a fake B: drive under the user's profile directory.
+    let base = match std::env::var("USERPROFILE") {
+        Ok(profile) => std::path::PathBuf::from(profile).join(".openwork_fakeBdrive"),
+        Err(_) => return,
+    };
+
+    let locale_dir = base.join("~BUN").join("locales");
+    if let Err(_) = fs::create_dir_all(&locale_dir) {
+        return;
+    }
+
+    let locale_file = locale_dir.join("en_US.json");
+    if !locale_file.exists() {
+        let _ = fs::write(&locale_file, "{}");
+    }
+
+    // Map the fake directory as B: drive (only if B: is not already mapped).
+    let _ = Command::new("subst")
+        .arg("B:")
+        .arg(&base)
+        .output();
+}
+
 pub fn find_free_port() -> Result<u16, String> {
     let listener = std::net::TcpListener::bind(("127.0.0.1", 0)).map_err(|e| e.to_string())?;
     let port = listener.local_addr().map_err(|e| e.to_string())?.port();
@@ -37,6 +74,10 @@ pub fn spawn_engine(
     opencode_username: Option<&str>,
     opencode_password: Option<&str>,
 ) -> Result<(Receiver<CommandEvent>, CommandChild), String> {
+    // Workaround: ensure B:\~BUN\locales\en_US.json is accessible on Windows.
+    #[cfg(target_os = "windows")]
+    ensure_bun_locale_workaround();
+
     let args = build_engine_args(hostname, port);
 
     let command = if use_sidecar {
