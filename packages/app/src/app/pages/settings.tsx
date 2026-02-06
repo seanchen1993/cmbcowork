@@ -939,15 +939,15 @@ export default function SettingsView(props: SettingsViewProps) {
         parsed = {};
       }
 
-      // Build provider config using OpenAI-compatible format
+      // Build provider config using OpenCode built-in OpenAI adapter.
+      // This avoids downloading @ai-sdk/openai-compatible at runtime,
+      // which is critical for offline / restricted environments.
       // See: https://opencode.ai/docs/providers
       const providerConfig = {
-        npm: "@ai-sdk/openai-compatible",
+        api: "openai",
         name: config.providerName,
-        options: {
-          baseURL: config.baseURL,
-          apiKey: config.apiKey,
-        },
+        url: config.baseURL,
+        apiKey: config.apiKey,
         models: {
           [config.modelId]: {
             name: config.modelName,
