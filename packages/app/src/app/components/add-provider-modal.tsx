@@ -15,6 +15,8 @@ export type AddProviderModalProps = {
     modelId: string;
     modelName: string;
     apiKey: string;
+    contextLimit: number;
+    outputLimit: number;
   }) => Promise<void>;
 };
 
@@ -25,6 +27,8 @@ export default function AddProviderModal(props: AddProviderModalProps) {
   const [modelId, setModelId] = createSignal("");
   const [modelName, setModelName] = createSignal("");
   const [apiKey, setApiKey] = createSignal("");
+  const [contextLimit, setContextLimit] = createSignal("32768");
+  const [outputLimit, setOutputLimit] = createSignal("4000");
   const [localError, setLocalError] = createSignal<string | null>(null);
   const [submitting, setSubmitting] = createSignal(false);
 
@@ -35,6 +39,8 @@ export default function AddProviderModal(props: AddProviderModalProps) {
     setModelId("");
     setModelName("");
     setApiKey("");
+    setContextLimit("32768");
+    setOutputLimit("4000");
     setLocalError(null);
   };
 
@@ -69,6 +75,20 @@ export default function AddProviderModal(props: AddProviderModalProps) {
       setLocalError("API Key 不能为空");
       return false;
     }
+    const ctx = parseInt(contextLimit().trim(), 10);
+    if (isNaN(ctx) || ctx <= 0) {
+      setLocalError("上下文长度必须是正整数");
+      return false;
+    }
+    const out = parseInt(outputLimit().trim(), 10);
+    if (isNaN(out) || out <= 0) {
+      setLocalError("最大输出长度必须是正整数");
+      return false;
+    }
+    if (out >= ctx) {
+      setLocalError("最大输出长度必须小于上下文长度");
+      return false;
+    }
     return true;
   };
 
@@ -87,6 +107,8 @@ export default function AddProviderModal(props: AddProviderModalProps) {
         modelId: modelId().trim(),
         modelName: modelName().trim(),
         apiKey: apiKey().trim(),
+        contextLimit: parseInt(contextLimit().trim(), 10),
+        outputLimit: parseInt(outputLimit().trim(), 10),
       });
       resetForm();
     } catch (error: unknown) {
@@ -188,14 +210,39 @@ export default function AddProviderModal(props: AddProviderModalProps) {
               onInput={(e) => setApiKey(e.currentTarget.value)}
               placeholder="例: sk-..."
               disabled={isDisabled()}
-              hint="该密钥将被存储在全局配置文件中"
+              hint="该密钥将被存储在配置文件中"
             />
+
+            {/* Token Limits */}
+            <div class="border-t border-gray-6/30 pt-4 mt-1">
+              <p class="text-xs text-gray-10 mb-3">模型 Token 限制（影响请求的上下文窗口和最大输出）</p>
+              <div class="grid grid-cols-2 gap-3">
+                <TextInput
+                  label="上下文长度"
+                  type="number"
+                  value={contextLimit()}
+                  onInput={(e) => setContextLimit(e.currentTarget.value)}
+                  placeholder="32768"
+                  disabled={isDisabled()}
+                  hint="模型最大上下文 token 数"
+                />
+                <TextInput
+                  label="最大输出长度"
+                  type="number"
+                  value={outputLimit()}
+                  onInput={(e) => setOutputLimit(e.currentTarget.value)}
+                  placeholder="4000"
+                  disabled={isDisabled()}
+                  hint="单次回复最大 token 数"
+                />
+              </div>
+            </div>
           </div>
 
           {/* Footer */}
           <div class="px-6 pt-4 pb-6 border-t border-gray-6/50 flex flex-col gap-3">
             <div class="text-[11px] text-gray-8">
-              配置将保存到 <span class="font-mono">~/.config/opencode/opencode.jsonc</span>，重启 OpenCode 后生效。
+              配置将保存到工作区和全局的 <span class="font-mono">opencode.jsonc</span>，重启 OpenCode 后生效。
             </div>
             <div class="flex justify-end gap-3">
               <Button

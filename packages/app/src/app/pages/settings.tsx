@@ -125,6 +125,7 @@ export type SettingsViewProps = {
   notionBusy: boolean;
   connectNotion: () => void;
   engineDoctorVersion: string | null;
+  reloadWorkspaceEngine?: () => Promise<boolean>;
 };
 
 // Owpenbot Settings Component
@@ -922,14 +923,19 @@ export default function SettingsView(props: SettingsViewProps) {
     modelId: string;
     modelName: string;
     apiKey: string;
+    contextLimit: number;
+    outputLimit: number;
   }) => {
     setAddProviderLoading(true);
     setAddProviderError(null);
 
     try {
-      // Read existing global config
-      const globalConfig = await readOpencodeConfig("global", "");
-      let configContent = globalConfig.content || "{}";
+      // Determine whether to use workspace (project) or global config.
+      // Prefer workspace config so the settings travel with the project.
+      const projectDir = props.engineInfo?.projectDir?.trim() || "";
+      const scope: "project" | "global" = projectDir ? "project" : "global";
+      const existingConfig = await readOpencodeConfig(scope, projectDir);
+      let configContent = existingConfig.content || "{}";
 
       // Parse existing config
       let parsed: Record<string, unknown> = {};
@@ -941,7 +947,6 @@ export default function SettingsView(props: SettingsViewProps) {
 
       // Build provider config using @ai-sdk/openai-compatible format.
       // This is the official OpenCode format for custom providers.
-      // See: https://opencode.ai/docs/providers#custom-provider
       const providerConfig = {
         npm: "@ai-sdk/openai-compatible",
         name: config.providerName,
@@ -952,6 +957,10 @@ export default function SettingsView(props: SettingsViewProps) {
         models: {
           [config.modelId]: {
             name: config.modelName,
+            limit: {
+              context: config.contextLimit,
+              output: config.outputLimit,
+            },
           },
         },
       };
@@ -960,33 +969,80 @@ export default function SettingsView(props: SettingsViewProps) {
       const providers = (parsed.provider as Record<string, unknown>) || {};
       providers[config.providerId] = providerConfig;
 
+      const fmt = { formattingOptions: { tabSize: 2, insertSpaces: true } };
+
       // Apply edits using jsonc-parser to preserve comments
-      let edits = modify(configContent, ["provider"], providers, {
-        formattingOptions: { tabSize: 2, insertSpaces: true },
-      });
+      let edits = modify(configContent, ["provider"], providers, fmt);
       configContent = applyEdits(configContent, edits);
 
-      // Set default model if not already set
-      if (!parsed.model) {
-        edits = modify(configContent, ["model"], `${config.providerId}/${config.modelId}`, {
-          formattingOptions: { tabSize: 2, insertSpaces: true },
-        });
-        configContent = applyEdits(configContent, edits);
-      }
+      // Always set the default model to the newly added one
+      edits = modify(configContent, ["model"], `${config.providerId}/${config.modelId}`, fmt);
+      configContent = applyEdits(configContent, edits);
+
+      // Ensure mcp is empty (remove network-dependent MCP tools that bloat context)
+      edits = modify(configContent, ["mcp"], {}, fmt);
+      configContent = applyEdits(configContent, edits);
+
+      // Ensure plugin is empty (remove network-dependent plugins)
+      edits = modify(configContent, ["plugin"], [], fmt);
+      configContent = applyEdits(configContent, edits);
 
       // Write updated config
-      await writeOpencodeConfig("global", "", configContent);
+      await writeOpencodeConfig(scope, projectDir, configContent);
+
+      // Also write to global config as fallback (if workspace was used)
+      if (scope === "project") {
+        try {
+          const globalCfg = await readOpencodeConfig("global", "");
+          let globalContent = globalCfg.content || "{}";
+          let globalParsed: Record<string, unknown> = {};
+          try {
+            globalParsed = parse(globalContent) || {};
+          } catch {
+            globalParsed = {};
+          }
+          const gProviders = (globalParsed.provider as Record<string, unknown>) || {};
+          gProviders[config.providerId] = providerConfig;
+
+          let ge = modify(globalContent, ["provider"], gProviders, fmt);
+          globalContent = applyEdits(globalContent, ge);
+          ge = modify(globalContent, ["model"], `${config.providerId}/${config.modelId}`, fmt);
+          globalContent = applyEdits(globalContent, ge);
+          ge = modify(globalContent, ["mcp"], {}, fmt);
+          globalContent = applyEdits(globalContent, ge);
+          ge = modify(globalContent, ["plugin"], [], fmt);
+          globalContent = applyEdits(globalContent, ge);
+
+          await writeOpencodeConfig("global", "", globalContent);
+        } catch {
+          // Global config write is best-effort; workspace config is primary
+        }
+      }
 
       // Show success message
       setAddProviderError(null);
       setAddProviderModalOpen(false);
 
-      // Show a notification
+      // Attempt to reload the engine so the new provider takes effect immediately
+      let reloaded = false;
+      if (props.reloadWorkspaceEngine) {
+        try {
+          reloaded = (await props.reloadWorkspaceEngine()) ?? false;
+        } catch {
+          // Reload failed; user will need to restart manually
+        }
+      }
+
+      const scopeLabel = scope === "project" ? "工作区" : "全局";
+      const reloadHint = reloaded
+        ? "引擎已自动重载，配置立即生效。"
+        : "请重启应用使配置生效。";
       alert(
-        `自定义提供商 "${config.providerName}" 已保存到全局配置。\n\n` +
-        `配置文件位置: ~/.config/opencode/opencode.jsonc\n\n` +
-        `默认模型已设置为: ${config.providerId}/${config.modelId}\n\n` +
-        `重启 OpenCode 后生效。`
+        `自定义提供商 "${config.providerName}" 已保存到${scopeLabel}配置。\n\n` +
+        `默认模型已设置为: ${config.providerId}/${config.modelId}\n` +
+        `上下文长度: ${config.contextLimit} tokens\n` +
+        `最大输出: ${config.outputLimit} tokens\n\n` +
+        reloadHint
       );
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);

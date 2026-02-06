@@ -3918,6 +3918,7 @@ export default function App() {
     openwrkStatus: openwrkStatusState(),
     owpenbotInfo: owpenbotInfoState(),
     engineDoctorVersion: workspaceStore.engineDoctorResult()?.version ?? null,
+    reloadWorkspaceEngine: reloadWorkspaceEngineFromUi,
     updateOpenworkServerSettings,
     resetOpenworkServerSettings,
     testOpenworkServerConnection,
