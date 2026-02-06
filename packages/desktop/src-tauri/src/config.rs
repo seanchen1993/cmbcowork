@@ -21,6 +21,8 @@ fn opencode_config_candidates(
                 PathBuf::from(dir)
             } else if let Ok(home) = env::var("HOME") {
                 PathBuf::from(home).join(".config")
+            } else if let Ok(profile) = env::var("USERPROFILE") {
+                PathBuf::from(profile).join(".config")
             } else {
                 return Err("Unable to resolve config directory".to_string());
             };
