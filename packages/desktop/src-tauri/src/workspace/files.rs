@@ -332,13 +332,11 @@ pub fn ensure_workspace_files(workspace_path: &str, preset: &str) -> Result<(), 
         config_changed = true;
     }
 
-    let required_plugins: Vec<&str> = match preset {
-        "starter" => vec!["opencode-scheduler"],
-        "automation" => vec!["opencode-scheduler"],
-        _ => vec![],
-    };
+    // Disabled: these plugins require network access at runtime (Bun install),
+    // which breaks offline / restricted Windows environments.
+    let required_plugins: Vec<&str> = vec![];
 
-    let should_seed_chrome_mcp = matches!(preset, "starter");
+    let should_seed_chrome_mcp = false;
 
     if !required_plugins.is_empty() {
         let plugins_value = config
