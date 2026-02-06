@@ -338,6 +338,27 @@ pub fn ensure_workspace_files(workspace_path: &str, preset: &str) -> Result<(), 
 
     let should_seed_chrome_mcp = false;
 
+    // Clean up legacy chrome-devtools MCP and network-dependent plugins
+    // from existing configs to free up model context and avoid offline errors.
+    if let Some(obj) = config.as_object_mut() {
+        if let Some(serde_json::Value::Object(mcp)) = obj.get_mut("mcp") {
+            if mcp.remove("chrome-devtools").is_some() {
+                config_changed = true;
+            }
+        }
+        if let Some(serde_json::Value::Array(plugins)) = obj.get_mut("plugin") {
+            let before_len = plugins.len();
+            plugins.retain(|v| {
+                v.as_str()
+                    .map(|s| s != "opencode-scheduler")
+                    .unwrap_or(true)
+            });
+            if plugins.len() != before_len {
+                config_changed = true;
+            }
+        }
+    }
+
     if !required_plugins.is_empty() {
         let plugins_value = config
             .get("plugin")
