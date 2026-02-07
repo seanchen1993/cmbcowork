@@ -211,23 +211,35 @@ export function GlobalSyncProvider(props: ParentProps) {
       return;
     }
 
-    const results = await Promise.allSettled([
+    // Load critical data (config + providers) first, then mark ready.
+    // Non-critical data (commands, mcp, lsp, projects) loads in background.
+    const critical = await Promise.allSettled([
       refreshConfig(),
       refreshProviders(),
       refreshProviderAuth(),
-      refreshCommands(),
-      refreshMcp(),
-      refreshLsp(),
-      refreshProjects(),
     ]);
 
-    for (const result of results) {
+    for (const result of critical) {
       if (result.status === "rejected") {
         setError(result.reason);
       }
     }
 
     setGlobalStore("ready", true);
+
+    // Load the rest in background without blocking the UI
+    const deferred = await Promise.allSettled([
+      refreshCommands(),
+      refreshMcp(),
+      refreshLsp(),
+      refreshProjects(),
+    ]);
+
+    for (const result of deferred) {
+      if (result.status === "rejected") {
+        setError(result.reason);
+      }
+    }
   };
 
   const child = (directory: string): WorkspaceStore => {

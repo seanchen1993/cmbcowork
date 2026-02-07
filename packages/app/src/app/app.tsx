@@ -1,9 +1,11 @@
 import {
   Match,
+  Suspense,
   Switch,
   createEffect,
   createMemo,
   createSignal,
+  lazy,
   onCleanup,
   onMount,
   untrack,
@@ -35,10 +37,11 @@ import CreateRemoteWorkspaceModal from "./components/create-remote-workspace-mod
 import CreateWorkspaceModal from "./components/create-workspace-modal";
 import McpAuthModal from "./components/mcp-auth-modal";
 import ReloadWorkspaceToast from "./components/reload-workspace-toast";
-import OnboardingView from "./pages/onboarding";
-import DashboardView from "./pages/dashboard";
-import SessionView from "./pages/session";
-import ProtoWorkspacesView from "./pages/proto-workspaces";
+
+const OnboardingView = lazy(() => import("./pages/onboarding"));
+const DashboardView = lazy(() => import("./pages/dashboard"));
+const SessionView = lazy(() => import("./pages/session"));
+const ProtoWorkspacesView = lazy(() => import("./pages/proto-workspaces"));
 import { createClient, unwrap, waitForHealthy } from "./lib/opencode";
 import {
   DEFAULT_MODEL,
@@ -3328,7 +3331,8 @@ export default function App() {
           markReloadRequired("mcp", { trigger: { type: "mcp", name: "notion", action: "added" } });
         }
 
-        await refreshMcpServers();
+        // Fire-and-forget: don't block bootstrap on MCP server refresh
+        refreshMcpServers().catch(() => undefined);
 
         const storedNotionSkillInstalled = window.localStorage.getItem("openwork.notionSkillInstalled");
         if (storedNotionSkillInstalled === "1") {
@@ -3339,27 +3343,27 @@ export default function App() {
       }
     }
 
+    // Run Tauri version/updater checks in parallel with bootstrap (non-blocking)
     if (isTauriRuntime()) {
-      try {
-        setAppVersion(await getVersion());
-      } catch {
-        // ignore
-      }
+      getVersion()
+        .then((v) => setAppVersion(v))
+        .catch(() => undefined);
 
-      try {
-        setUpdateEnv(await updaterEnvironment());
-      } catch {
-        // ignore
-      }
+      updaterEnvironment()
+        .then((env) => setUpdateEnv(env))
+        .catch(() => undefined);
 
-      if (updateAutoCheck()) {
-        const state = updateStatus();
-        const lastCheckedAt =
-          state.state === "idle" ? state.lastCheckedAt : null;
-        if (!lastCheckedAt || Date.now() - lastCheckedAt > 24 * 60 * 60_000) {
-          checkForUpdates({ quiet: true }).catch(() => undefined);
+      // Defer update check to after boot
+      queueMicrotask(() => {
+        if (updateAutoCheck()) {
+          const state = updateStatus();
+          const lastCheckedAt =
+            state.state === "idle" ? state.lastCheckedAt : null;
+          if (!lastCheckedAt || Date.now() - lastCheckedAt > 24 * 60 * 60_000) {
+            checkForUpdates({ quiet: true }).catch(() => undefined);
+          }
         }
-      }
+      });
     }
 
     void workspaceStore.bootstrapOnboarding().finally(() => setBooting(false));
@@ -4293,20 +4297,22 @@ export default function App() {
 
   return (
     <>
-      <Switch>
-        <Match when={currentView() === "proto"}>
-          <ProtoWorkspacesView />
-        </Match>
-        <Match when={currentView() === "onboarding"}>
-          <OnboardingView {...onboardingProps()} />
-        </Match>
-        <Match when={currentView() === "session"}>
-          <SessionView {...sessionProps()} />
-        </Match>
-        <Match when={true}>
-          <DashboardView {...dashboardProps()} />
-        </Match>
-      </Switch>
+      <Suspense>
+        <Switch>
+          <Match when={currentView() === "proto"}>
+            <ProtoWorkspacesView />
+          </Match>
+          <Match when={currentView() === "onboarding"}>
+            <OnboardingView {...onboardingProps()} />
+          </Match>
+          <Match when={currentView() === "session"}>
+            <SessionView {...sessionProps()} />
+          </Match>
+          <Match when={true}>
+            <DashboardView {...dashboardProps()} />
+          </Match>
+        </Switch>
+      </Suspense>
 
       <WorkspaceSwitchOverlay
         open={workspaceSwitchOpen()}

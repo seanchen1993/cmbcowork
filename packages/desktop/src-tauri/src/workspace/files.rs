@@ -293,9 +293,10 @@ pub fn ensure_workspace_files(workspace_path: &str, preset: &str) -> Result<(), 
     seed_workspace_guide(&skill_root)?;
   if preset == "starter" {
     seed_get_started_skill(&skill_root)?;
-    if let Err(err) = seed_enterprise_creator_skills(&root, &skill_root) {
-      println!("[workspace] Failed to seed creator skills: {err}");
-    }
+    // Skip enterprise creator skills download entirely — it requires internet
+    // access to github.com and will timeout/hang in offline or intranet
+    // environments, severely delaying startup.
+    // If needed in the future, run in a background thread with a short timeout.
   }
 
     let commands_dir = root.join(".opencode").join("commands");

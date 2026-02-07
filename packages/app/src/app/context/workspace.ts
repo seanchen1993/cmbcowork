@@ -1529,8 +1529,7 @@ export function createWorkspaceStore(options: {
       }
     }
 
-    await refreshEngine();
-    await refreshEngineDoctor();
+    await Promise.all([refreshEngine(), refreshEngineDoctor()]);
 
     if (isTauriRuntime()) {
       const active = workspaces().find((w) => w.id === activeWorkspaceId()) ?? null;
