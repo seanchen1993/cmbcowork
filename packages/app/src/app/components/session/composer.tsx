@@ -807,7 +807,7 @@ export default function Composer(props: ComposerProps) {
   const wrapperClass = () =>
     isInline()
       ? "relative z-10 p-0"
-      : "sticky bottom-0 z-20 p-4 bg-transparent";
+      : "sticky bottom-0 z-20 px-4 py-2 bg-transparent";
   const widthClass = () => (isInline() ? "max-w-none" : "max-w-3xl");
   const shellClass = () =>
     isInline()
@@ -984,7 +984,7 @@ export default function Composer(props: ComposerProps) {
             </div>
           </div>
 
-          <div class="p-3 pt-5 pb-2 px-4">
+          <div class="p-3 pt-3 pb-1 px-4">
             <Show when={props.showNotionBanner}>
               <button
                 type="button"
@@ -1033,7 +1033,7 @@ export default function Composer(props: ComposerProps) {
               </div>
             </Show>
 
-                   <div class="relative min-h-[80px]">
+                   <div class="relative min-h-[56px]">
               <Show when={props.toast}>
                 <div class="absolute bottom-full right-0 mb-2 z-30 rounded-xl border border-gray-6 bg-gray-1/90 px-3 py-2 text-xs text-gray-11 shadow-lg backdrop-blur-md">
                   {props.toast}
@@ -1048,7 +1048,7 @@ export default function Composer(props: ComposerProps) {
 
                   <div class="relative">
                     <Show when={!props.prompt.trim() && !attachments().length}>
-                      <div class="absolute left-0 top-4 text-gray-6 text-[15px] leading-relaxed pointer-events-none">
+                      <div class="absolute left-0 top-1/2 -translate-y-1/2 text-gray-6 text-[15px] leading-relaxed pointer-events-none">
                         今天想让我做什么？
                       </div>
                     </Show>
@@ -1065,7 +1065,7 @@ export default function Composer(props: ComposerProps) {
                       onKeyUp={updateMentionQuery}
                       onClick={updateMentionQuery}
                       onPaste={handlePaste}
-                      class="bg-transparent border-none p-0 pt-4 pb-8 pr-20 text-gray-12 focus:ring-0 text-[15px] leading-relaxed resize-none min-h-[24px] outline-none relative z-10"
+                      class="bg-transparent border-none p-0 py-4 pr-20 text-gray-12 focus:ring-0 text-[15px] leading-relaxed resize-none min-h-[24px] outline-none relative z-10"
                     />
 
                     <div class="mt-3" ref={props.setAgentPickerRef}>

@@ -144,9 +144,7 @@ export default function SessionSidebar(props: SidebarProps) {
         </div>
       </div>
 
-      <div class="px-4 pb-4 text-[11px] text-gray-9 leading-relaxed">
-        这些任务仅在本地运行，不会在设备间同步。
-      </div>
+      {/* local-only hint removed */}
 
       <Show when={contextMenu()}>
         {(menu) => (

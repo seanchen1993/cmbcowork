@@ -548,15 +548,22 @@ export default function SessionView(props: SessionViewProps) {
     }
   });
 
-  // Reset scroll position when switching sessions so the empty-state
-  // (lobster / welcome) isn't hidden behind an old scrollTop offset.
+  // When switching to an empty session, reset scroll so the welcome
+  // screen (lobster) isn't hidden behind an old scrollTop offset.
+  createEffect(() => {
+    if (props.messages.length === 0 && chatContainerEl) {
+      chatContainerEl.scrollTop = 0;
+    }
+  });
+
+  // Re-enable auto-scroll when switching sessions so new messages
+  // are followed automatically.
   createEffect(
     on(
       () => props.selectedSessionId,
       () => {
-        if (chatContainerEl) {
-          chatContainerEl.scrollTop = 0;
-        }
+        setAutoScrollEnabled(true);
+        setUnreadCount(0);
       },
     ),
   );
@@ -1481,6 +1488,24 @@ export default function SessionView(props: SessionViewProps) {
                 }))
               }
               onFileClick={handleWorkingFileClick}
+              onOpenFolder={async () => {
+                const root = props.activeWorkspaceRoot.trim();
+                if (!root) {
+                  setCommandToast("请先选择工作区");
+                  return;
+                }
+                if (!isTauriRuntime()) {
+                  setCommandToast("文件夹打开功能仅在桌面应用中可用");
+                  return;
+                }
+                try {
+                  const { revealItemInDir } = await import("@tauri-apps/plugin-opener");
+                  await revealItemInDir(root);
+                } catch (error) {
+                  const message = error instanceof Error ? error.message : "无法打开文件夹";
+                  setCommandToast(message);
+                }
+              }}
             />
           </aside>
         </div>
@@ -1502,7 +1527,7 @@ export default function SessionView(props: SessionViewProps) {
           </div>
         </Show>
 
-        <div class="fixed bottom-0 left-0 right-0">
+        <div class="fixed bottom-0 left-0 z-30">
           <StatusBar
             clientConnected={props.clientConnected}
             openworkServerStatus={props.openworkServerStatus}

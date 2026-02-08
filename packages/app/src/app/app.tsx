@@ -2404,11 +2404,11 @@ export default function App() {
   const [expandedSidebarSections, setExpandedSidebarSections] = createSignal({
     progress: true,
     artifacts: true,
-    context: false,
-    plugins: false,
-    mcp: false,
+    context: true,
+    plugins: true,
+    mcp: true,
     skills: true,
-    authorizedFolders: false,
+    authorizedFolders: true,
   });
 
   const [appVersion, setAppVersion] = createSignal<string | null>(null);

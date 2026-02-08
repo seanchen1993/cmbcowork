@@ -174,8 +174,8 @@ export default function StatusBar(props: StatusBarProps) {
   });
 
   return (
-    <div class="border-t border-gray-6 bg-gray-1/90 backdrop-blur-md">
-      <div class="mx-auto max-w-5xl px-4 py-2 flex flex-wrap items-center gap-3 text-xs">
+    <div class="bg-gray-1/90 backdrop-blur-md">
+      <div class="px-4 py-2 flex items-center gap-3 text-xs">
         <div class="flex items-center gap-2">
           <Button
             variant="ghost"

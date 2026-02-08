@@ -1,5 +1,13 @@
 import { For, Show, createMemo } from "solid-js";
-import { BarChart3, Check, ChevronDown, Circle, File, Folder, Layers, Package } from "lucide-solid";
+import {
+  Check,
+  ChevronDown,
+  Circle,
+  ExternalLink,
+  File,
+  FileText,
+  Package,
+} from "lucide-solid";
 
 import { SUGGESTED_PLUGINS } from "../../constants";
 import type { McpServerEntry, McpStatus, McpStatusMap, SkillCard, TodoItem } from "../../types";
@@ -27,6 +35,7 @@ export type ContextPanelProps = {
   };
   onToggleSection: (section: "context" | "plugins" | "mcp" | "skills" | "authorizedFolders") => void;
   onFileClick?: (path: string) => void;
+  onOpenFolder?: () => void;
 };
 
 const humanizePlugin = (name: string) => {
@@ -142,149 +151,168 @@ const mcpStatusDot = (status?: McpStatus, disabled?: boolean) => {
   }
 };
 
+/* ---------- file extension icon helper ---------- */
+const getFileIcon = (filename: string) => {
+  const ext = filename.split(".").pop()?.toLowerCase() ?? "";
+  if (["txt", "md", "log", "csv", "json", "yaml", "yml", "toml"].includes(ext)) {
+    return FileText;
+  }
+  return File;
+};
+
 export default function ContextPanel(props: ContextPanelProps) {
   const displayFiles = () =>
     props.workingFiles.map((entry) => toWorkspaceRelative(entry, props.workspaceRoot));
-  const firstWorkingFile = () => displayFiles()[0] ?? "";
-  const showDetails = () => props.showDetails ?? true;
 
-  const progressDots = createMemo(() => {
-    const activeTodos = (props.todos ?? []).filter((todo) => todo.content.trim());
-    const total = activeTodos.length;
-    const completed = activeTodos.filter((todo) => todo.status === "completed").length;
-    const dotCount = Math.max(total, 3);
-    return Array.from({ length: dotCount }, (_, idx) => idx < completed);
-  });
+  const activeTodos = createMemo(() =>
+    (props.todos ?? []).filter((todo) => todo.content.trim()),
+  );
 
   return (
     <div class="flex flex-col h-full overflow-hidden">
-      <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-        <div class="space-y-3">
-          <div class="rounded-2xl border border-gray-6 bg-gray-2/30 p-4">
-            <div class="flex items-start gap-3">
-              <div class="h-9 w-9 rounded-xl border border-gray-6 bg-gray-1 flex items-center justify-center text-gray-10">
-                <BarChart3 size={18} />
-              </div>
-              <div class="min-w-0">
-                <div class="text-sm font-medium text-gray-12">进度</div>
-                <div class="mt-3 flex items-center gap-2 flex-wrap">
-                  <For each={progressDots()}>
-                    {(done) => (
-                      <div
-                        class={`h-6 w-6 rounded-full border flex items-center justify-center transition-colors ${
-                          done ? "border-green-6 bg-green-2 text-green-11" : "border-gray-6 bg-gray-1 text-gray-8"
-                        }`}
-                      >
-                        <Show when={done}>
-                          <Check size={14} />
-                        </Show>
-                      </div>
-                    )}
+      <div class="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+
+        {/* ── Progress ── */}
+        <div class="rounded-2xl border border-gray-6 bg-gray-2/30">
+          <button
+            class="w-full px-4 py-3 flex items-center justify-between text-sm text-gray-12 font-medium"
+            onClick={() => props.onToggleSection("context")}
+          >
+            <span>Progress</span>
+            <ChevronDown
+              size={16}
+              class={`transition-transform text-gray-10 ${props.expandedSections.context ? "rotate-180" : ""}`.trim()}
+            />
+          </button>
+          <Show when={props.expandedSections.context}>
+            <div class="px-4 pb-4 pt-1">
+              <Show
+                when={activeTodos().length > 0}
+                fallback={<div class="text-xs text-gray-9">暂无进度信息。</div>}
+              >
+                <div class="space-y-2">
+                  <For each={activeTodos()}>
+                    {(todo) => {
+                      const done = () => todo.status === "completed";
+                      return (
+                        <div class="flex items-start gap-2.5">
+                          <div
+                            class={`mt-0.5 h-5 w-5 rounded-full border flex-shrink-0 flex items-center justify-center transition-colors ${
+                              done()
+                                ? "border-blue-7 bg-blue-9 text-white"
+                                : "border-gray-6 bg-gray-1 text-gray-8"
+                            }`}
+                          >
+                            <Show when={done()}>
+                              <Check size={12} stroke-width={3} />
+                            </Show>
+                          </div>
+                          <span
+                            class={`text-xs leading-relaxed ${
+                              done() ? "text-gray-9 line-through" : "text-gray-11"
+                            }`}
+                          >
+                            {todo.content}
+                          </span>
+                        </div>
+                      );
+                    }}
                   </For>
                 </div>
-              </div>
+              </Show>
             </div>
-          </div>
-
-          <div class="rounded-2xl border border-gray-6 bg-gray-2/30 p-4">
-            <div class="flex items-start gap-3">
-              <div class="h-9 w-9 rounded-xl border border-gray-6 bg-gray-1 flex items-center justify-center text-gray-10">
-                <Folder size={18} />
-              </div>
-              <div class="min-w-0">
-                <div class="text-sm font-medium text-gray-12">工作文件夹</div>
-                <div class="text-xs text-gray-9">查看并打开本次任务创建的文件。</div>
-                <Show when={firstWorkingFile()}>
-                  <div class="mt-2 text-xs text-gray-11 truncate">
-                    {props.workingFiles.length} 个文件 · {getSmartFileName(displayFiles(), firstWorkingFile())}
-                  </div>
-                </Show>
-              </div>
-            </div>
-          </div>
-
-          <div class="rounded-2xl border border-gray-6 bg-gray-2/30 p-4">
-            <div class="flex items-start gap-3">
-              <div class="h-9 w-9 rounded-xl border border-gray-6 bg-gray-1 flex items-center justify-center text-gray-10">
-                <Layers size={18} />
-              </div>
-              <div class="min-w-0">
-                <div class="text-sm font-medium text-gray-12">上下文</div>
-                <div class="text-xs text-gray-9">跟踪本次任务使用的工具与引用文件。</div>
-              </div>
-            </div>
-          </div>
+          </Show>
         </div>
 
-        <Show when={showDetails()}>
-          <div class="rounded-2xl border border-gray-6 bg-gray-2/30" id="sidebar-context">
-            <button
-              class="w-full px-4 py-3 flex items-center justify-between text-sm text-gray-12 font-medium"
-              onClick={() => props.onToggleSection("context")}
-            >
-              <span>上下文</span>
-              <ChevronDown
-                size={16}
-                class={`transition-transform text-gray-10 ${props.expandedSections.context ? "rotate-180" : ""}`.trim()}
-              />
-            </button>
-            <Show when={props.expandedSections.context}>
-              <div class="px-4 pb-4 pt-1 space-y-5">
-                <div>
-                  <div class="flex items-center justify-between text-[11px] uppercase tracking-wider text-gray-9 font-semibold mb-2">
-                    <span>工作文件</span>
-                  </div>
-                  <div class="space-y-2">
-                    <Show
-                      when={props.workingFiles.length}
-                      fallback={<div class="text-xs text-gray-9">暂无。</div>}
-                    >
-                      <For each={props.workingFiles}>
-                        {(file) => {
-                          const displayPath = () => toWorkspaceRelative(file, props.workspaceRoot);
-                          const label = () => getSmartFileName(displayFiles(), displayPath());
-                          const canOpen = () => typeof props.onFileClick === "function";
-                          return (
-                            <button
-                              type="button"
-                              class={`flex items-center gap-2 text-xs text-gray-11 rounded px-1 -mx-1 transition-colors w-full text-left ${
-                                canOpen()
-                                  ? "hover:text-gray-12 hover:bg-gray-3"
-                                  : "cursor-default opacity-70"
-                              }`.trim()}
-                              onClick={() => props.onFileClick?.(file)}
-                            title={canOpen() ? `打开 ${displayPath()}` : displayPath()}
-                              disabled={!canOpen()}
-                            >
-                              <File size={12} class="text-gray-9" />
-                              <span class="truncate">{label()}</span>
-                            </button>
-                          );
-                        }}
-                      </For>
-                    </Show>
-                  </div>
+        {/* ── Working Files (其他文件) ── */}
+        <div class="rounded-2xl border border-gray-6 bg-gray-2/30">
+          <button
+            class="w-full px-4 py-3 flex items-center justify-between text-sm text-gray-12 font-medium"
+            onClick={() => props.onToggleSection("authorizedFolders")}
+          >
+            <div class="flex items-center gap-2">
+              <span>其他文件</span>
+              <Show when={typeof props.onOpenFolder === "function"}>
+                <span
+                  class="text-gray-9 hover:text-gray-11 transition-colors cursor-pointer"
+                  title="打开工作文件夹"
+                  onClick={(e: MouseEvent) => {
+                    e.stopPropagation();
+                    props.onOpenFolder?.();
+                  }}
+                >
+                  <ExternalLink size={13} />
+                </span>
+              </Show>
+            </div>
+            <ChevronDown
+              size={16}
+              class={`transition-transform text-gray-10 ${props.expandedSections.authorizedFolders ? "rotate-180" : ""}`.trim()}
+            />
+          </button>
+          <Show when={props.expandedSections.authorizedFolders}>
+            <div class="px-4 pb-4 pt-1">
+              <Show
+                when={props.workingFiles.length > 0}
+                fallback={<div class="text-xs text-gray-9">暂无文件。</div>}
+              >
+                <div class="space-y-2">
+                  <For each={props.workingFiles}>
+                    {(file) => {
+                      const displayPath = () => toWorkspaceRelative(file, props.workspaceRoot);
+                      const label = () => getSmartFileName(displayFiles(), displayPath());
+                      const canOpen = () => typeof props.onFileClick === "function";
+                      const IconComponent = getFileIcon(file);
+                      return (
+                        <button
+                          type="button"
+                          class={`flex items-center gap-2 text-xs text-gray-11 rounded px-1 -mx-1 py-0.5 transition-colors w-full text-left ${
+                            canOpen()
+                              ? "hover:text-gray-12 hover:bg-gray-3"
+                              : "cursor-default opacity-70"
+                          }`.trim()}
+                          onClick={() => props.onFileClick?.(file)}
+                          title={canOpen() ? `打开 ${displayPath()}` : displayPath()}
+                          disabled={!canOpen()}
+                        >
+                          <IconComponent size={14} class="text-gray-9 flex-shrink-0" />
+                          <span class="truncate">{label()}</span>
+                        </button>
+                      );
+                    }}
+                  </For>
                 </div>
-              </div>
-            </Show>
-          </div>
+              </Show>
+            </div>
+          </Show>
+        </div>
 
-          <div class="rounded-2xl border border-gray-6 bg-gray-2/30">
-            <button
-              class="w-full px-4 py-3 flex items-center justify-between text-sm text-gray-12 font-medium"
-              onClick={() => props.onToggleSection("plugins")}
-            >
-              <span>插件</span>
-              <ChevronDown
-                size={16}
-                class={`transition-transform text-gray-10 ${props.expandedSections.plugins ? "rotate-180" : ""}`.trim()}
-              />
-            </button>
-            <Show when={props.expandedSections.plugins}>
-              <div class="px-4 pb-4 pt-1">
+        {/* ── Context (上下文) ── */}
+        <div class="rounded-2xl border border-gray-6 bg-gray-2/30">
+          <button
+            class="w-full px-4 py-3 flex items-center justify-between text-sm text-gray-12 font-medium"
+            onClick={() => props.onToggleSection("skills")}
+          >
+            <span>Context</span>
+            <ChevronDown
+              size={16}
+              class={`transition-transform text-gray-10 ${props.expandedSections.skills ? "rotate-180" : ""}`.trim()}
+            />
+          </button>
+          <Show when={props.expandedSections.skills}>
+            <div class="px-4 pb-4 pt-1 space-y-4">
+              <div class="text-xs text-gray-9">
+                跟踪本次任务使用的工具与引用文件。
+              </div>
+
+              {/* Plugins subsection */}
+              <div>
+                <div class="text-[11px] uppercase tracking-wider text-gray-9 font-semibold mb-2">
+                  插件
+                </div>
                 <div class="space-y-2">
                   <Show
-                    when={props.activePlugins.length}
+                    when={props.activePlugins.length > 0}
                     fallback={
                       <div class="text-xs text-gray-9">
                         {props.activePluginStatus ?? "暂无插件。"}
@@ -316,25 +344,15 @@ export default function ContextPanel(props: ContextPanelProps) {
                   </Show>
                 </div>
               </div>
-            </Show>
-          </div>
 
-          <div class="rounded-2xl border border-gray-6 bg-gray-2/30">
-            <button
-              class="w-full px-4 py-3 flex items-center justify-between text-sm text-gray-12 font-medium"
-              onClick={() => props.onToggleSection("mcp")}
-            >
-              <span>MCP</span>
-              <ChevronDown
-                size={16}
-                class={`transition-transform text-gray-10 ${props.expandedSections.mcp ? "rotate-180" : ""}`.trim()}
-              />
-            </button>
-            <Show when={props.expandedSections.mcp}>
-              <div class="px-4 pb-4 pt-1">
+              {/* MCP subsection */}
+              <div>
+                <div class="text-[11px] uppercase tracking-wider text-gray-9 font-semibold mb-2">
+                  MCP
+                </div>
                 <div class="space-y-2">
                   <Show
-                    when={props.mcpServers.length}
+                    when={props.mcpServers.length > 0}
                     fallback={
                       <div class="text-xs text-gray-9">
                         {props.mcpStatus ?? "暂无 MCP 服务。"}
@@ -366,25 +384,15 @@ export default function ContextPanel(props: ContextPanelProps) {
                   </Show>
                 </div>
               </div>
-            </Show>
-          </div>
 
-          <div class="rounded-2xl border border-gray-6 bg-gray-2/30">
-            <button
-              class="w-full px-4 py-3 flex items-center justify-between text-sm text-gray-12 font-medium"
-              onClick={() => props.onToggleSection("skills")}
-            >
-              <span>技能</span>
-              <ChevronDown
-                size={16}
-                class={`transition-transform text-gray-10 ${props.expandedSections.skills ? "rotate-180" : ""}`.trim()}
-              />
-            </button>
-            <Show when={props.expandedSections.skills}>
-              <div class="px-4 pb-4 pt-1">
+              {/* Skills subsection */}
+              <div>
+                <div class="text-[11px] uppercase tracking-wider text-gray-9 font-semibold mb-2">
+                  技能
+                </div>
                 <div class="space-y-2">
                   <Show
-                    when={props.skills.length}
+                    when={props.skills.length > 0}
                     fallback={
                       <div class="text-xs text-gray-9">
                         {props.skillsStatus ?? "暂无技能。"}
@@ -415,45 +423,10 @@ export default function ContextPanel(props: ContextPanelProps) {
                   </Show>
                 </div>
               </div>
-            </Show>
-          </div>
+            </div>
+          </Show>
+        </div>
 
-          <div class="rounded-2xl border border-gray-6 bg-gray-2/30">
-            <button
-              class="w-full px-4 py-3 flex items-center justify-between text-sm text-gray-12 font-medium"
-              onClick={() => props.onToggleSection("authorizedFolders")}
-            >
-              <span>已授权文件夹</span>
-              <ChevronDown
-                size={16}
-                class={`transition-transform text-gray-10 ${
-                  props.expandedSections.authorizedFolders ? "rotate-180" : ""
-                }`.trim()}
-              />
-            </button>
-            <Show when={props.expandedSections.authorizedFolders}>
-              <div class="px-4 pb-4 pt-1">
-                <div class="space-y-2">
-                  <Show
-                    when={props.authorizedDirs.length}
-                  fallback={<div class="text-xs text-gray-9">暂无。</div>}
-                  >
-                    <For each={props.authorizedDirs.slice(0, 3)}>
-                      {(folder) => (
-                        <div class="flex items-center gap-2 text-xs text-gray-11">
-                          <Folder size={12} class="text-gray-9" />
-                          <span class="truncate" title={folder}>
-                            {folder.split(/[/\\]/).pop()}
-                          </span>
-                        </div>
-                      )}
-                    </For>
-                  </Show>
-                </div>
-              </div>
-            </Show>
-          </div>
-        </Show>
       </div>
     </div>
   );
