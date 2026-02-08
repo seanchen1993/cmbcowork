@@ -548,6 +548,19 @@ export default function SessionView(props: SessionViewProps) {
     }
   });
 
+  // Reset scroll position when switching sessions so the empty-state
+  // (lobster / welcome) isn't hidden behind an old scrollTop offset.
+  createEffect(
+    on(
+      () => props.selectedSessionId,
+      () => {
+        if (chatContainerEl) {
+          chatContainerEl.scrollTop = 0;
+        }
+      },
+    ),
+  );
+
   const triggerFlyout = (
     sourceEl: Element | null,
     targetId: string,
