@@ -122,6 +122,7 @@ export type SessionViewProps = {
   commandRegistryItems: () => CommandRegistryItem[];
   registerCommand: (command: CommandRegistryItem) => () => void;
   deleteSession: (sessionId: string) => Promise<void>;
+  abortSession?: () => void;
 };
 
 export default function SessionView(props: SessionViewProps) {
@@ -1214,7 +1215,7 @@ export default function SessionView(props: SessionViewProps) {
   const renderComposer = (layout: "dock" | "inline") => (
     <Composer
       prompt={props.prompt}
-      busy={props.busy}
+      busy={props.busy || props.sessionStatus === "running" || props.sessionStatus === "retry"}
       layout={layout}
       onSend={handleSendPrompt}
       onDraftChange={handleDraftChange}
@@ -1248,6 +1249,7 @@ export default function SessionView(props: SessionViewProps) {
       recentFiles={props.workingFiles}
       searchFiles={props.searchFiles}
       isRemoteWorkspace={props.activeWorkspaceDisplay.workspaceType === "remote"}
+      onAbort={props.abortSession}
     />
   );
 

@@ -199,12 +199,12 @@ export default function ContextPanel(props: ContextPanelProps) {
                           <div
                             class={`mt-0.5 h-5 w-5 rounded-full border flex-shrink-0 flex items-center justify-center transition-colors ${
                               done()
-                                ? "border-blue-7 bg-blue-9 text-white"
+                                ? "border-blue-7 bg-blue-9"
                                 : "border-gray-6 bg-gray-1 text-gray-8"
                             }`}
                           >
                             <Show when={done()}>
-                              <Check size={12} stroke-width={3} />
+                              <Check size={12} stroke-width={3} color="white" />
                             </Show>
                           </div>
                           <span

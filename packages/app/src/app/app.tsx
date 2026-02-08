@@ -800,6 +800,26 @@ export default function App() {
     }
   }
 
+  async function abortCurrentSession() {
+    const sessionID = selectedSessionId();
+    if (!sessionID) return;
+    const c = client();
+    if (!c) return;
+    try {
+      const root = workspaceStore.activeWorkspaceRoot().trim();
+      await (c.session as any).abort({
+        sessionID,
+        ...(root ? { directory: root } : {}),
+      });
+    } catch (e) {
+      console.warn("[abortSession] failed:", e);
+    } finally {
+      setBusy(false);
+      setBusyLabel(null);
+      setBusyStartedAt(null);
+    }
+  }
+
   async function openConnectFlow() {
     workspaceStore.setWorkspacePickerOpen(true);
   }
@@ -4190,6 +4210,7 @@ export default function App() {
     registerCommand: commandRegistry.registerCommand,
     searchFiles: searchWorkspaceFiles,
     deleteSession: deleteSessionById,
+    abortSession: abortCurrentSession,
     onTryNotionPrompt: () => {
       setPrompt("setup my crm");
       setTryNotionPromptVisible(false);
