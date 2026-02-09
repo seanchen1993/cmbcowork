@@ -865,7 +865,7 @@ export default function SessionView(props: SessionViewProps) {
     { label: "代码质量检视", icon: Eye, onClick: () => applyQuickPrompt("对当前项目的代码进行检视，检查代码规范、潜在缺陷和可优化项，给出改进建议") },
     { label: "明文密码处理", icon: Lock, onClick: () => applyQuickPrompt("扫描当前项目中是否存在明文密码、硬编码密钥或敏感信息泄露，并给出脱敏和安全存储的修复方案") },
     { label: "系统链路治理", icon: Network, onClick: () => applyQuickPrompt("分析当前项目的服务调用链路，梳理上下游依赖关系，识别单点故障和链路瓶颈，给出治理建议") },
-    { label: "架构红线治理", icon: Shield, onClick: () => applyQuickPrompt("检查当前项目是否存在架构红线问题，包括循环依赖、跨层调用、禁用API使用等违规项，并给出整改方案") },
+    { label: "架构规范检查", icon: Shield, onClick: () => applyQuickPrompt("检查当前项目是否存在架构违规问题，包括循环依赖、跨层调用、禁用API使用等违规项，并给出整改方案") },
     { label: "安全漏洞治理", icon: Bug, onClick: () => applyQuickPrompt("扫描当前项目的安全漏洞，包括依赖库CVE、SQL注入、XSS等常见安全风险，给出修复优先级和方案") },
     { label: "系统架构评审", icon: Code2, onClick: () => applyQuickPrompt("对当前项目进行系统架构评审，评估模块划分、分层合理性、扩展性和性能瓶颈，给出架构优化建议") },
   ];
