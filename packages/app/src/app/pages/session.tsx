@@ -20,7 +20,7 @@ import type {
   WorkspaceDisplay,
 } from "../types";
 
-import { ArrowRight, BarChart3, Check, ChevronDown, Copy, FileText, Folder, HardDrive, Shield, Sparkles } from "lucide-solid";
+import { ArrowRight, BarChart3, Bug, Check, ChevronDown, Code2, Copy, Eye, FileText, Folder, HardDrive, Lock, Network, Shield, Sparkles } from "lucide-solid";
 
 import Button from "../components/button";
 import RenameSessionModal from "../components/rename-session-modal";
@@ -861,20 +861,22 @@ export default function SessionView(props: SessionViewProps) {
     props.setPrompt(value);
   };
 
-  const quickActions = [
-    { label: "创建文件", icon: FileText, onClick: () => applyQuickPrompt("创建一个文件") },
-    { label: "整理数据", icon: BarChart3, onClick: () => applyQuickPrompt("整理数据") },
-    {
-      label: "做个原型",
-      icon: Sparkles,
-      onClick: async () => {
-        const command = await ensureBrowserSetupCommand();
-        if (command) runOpenCodeCommand(command);
-      },
-    },
-    { label: "整理文件", icon: Folder, onClick: () => applyQuickPrompt("整理文件") },
-    { label: "准备会议", icon: Check, onClick: () => applyQuickPrompt("准备一次会议") },
-    { label: "起草消息", icon: Copy, onClick: () => applyQuickPrompt("起草一条消息") },
+  const codingActions = [
+    { label: "代码质量检视", icon: Eye, onClick: () => applyQuickPrompt("对当前项目的代码进行检视，检查代码规范、潜在缺陷和可优化项，给出改进建议") },
+    { label: "明文密码处理", icon: Lock, onClick: () => applyQuickPrompt("扫描当前项目中是否存在明文密码、硬编码密钥或敏感信息泄露，并给出脱敏和安全存储的修复方案") },
+    { label: "系统链路治理", icon: Network, onClick: () => applyQuickPrompt("分析当前项目的服务调用链路，梳理上下游依赖关系，识别单点故障和链路瓶颈，给出治理建议") },
+    { label: "架构红线治理", icon: Shield, onClick: () => applyQuickPrompt("检查当前项目是否存在架构红线问题，包括循环依赖、跨层调用、禁用API使用等违规项，并给出整改方案") },
+    { label: "安全漏洞治理", icon: Bug, onClick: () => applyQuickPrompt("扫描当前项目的安全漏洞，包括依赖库CVE、SQL注入、XSS等常见安全风险，给出修复优先级和方案") },
+    { label: "系统架构评审", icon: Code2, onClick: () => applyQuickPrompt("对当前项目进行系统架构评审，评估模块划分、分层合理性、扩展性和性能瓶颈，给出架构优化建议") },
+  ];
+
+  const generalActions = [
+    { label: "创建文件", icon: FileText, onClick: () => applyQuickPrompt("帮我在当前项目中创建一个新文件，请先问我文件类型和用途") },
+    { label: "整理数据", icon: BarChart3, onClick: () => applyQuickPrompt("帮我整理和分析当前项目中的数据文件，梳理数据结构并给出优化建议") },
+    { label: "做个原型", icon: Sparkles, onClick: () => applyQuickPrompt("帮我快速搭建一个功能原型，请先问我原型的用途和技术栈偏好") },
+    { label: "整理文件", icon: Folder, onClick: () => applyQuickPrompt("帮我整理当前项目的文件结构，识别冗余文件并建议合理的目录组织方式") },
+    { label: "准备会议", icon: Check, onClick: () => applyQuickPrompt("帮我准备一次技术会议，包括议程大纲、讨论要点和待确认事项") },
+    { label: "起草消息", icon: Copy, onClick: () => applyQuickPrompt("帮我起草一条工作消息，请先问我消息的对象和主题") },
   ];
 
   const buildHelpPreview = () => {
@@ -1333,12 +1335,18 @@ export default function SessionView(props: SessionViewProps) {
                         <span class="text-4xl" aria-hidden="true">🦞</span>
                       </div>
                         <h3 class="text-2xl md:text-3xl font-semibold text-gray-12">
-                        一起把待办划掉一件
+                        今天想做点什么？
                         </h3>
                       </div>
 
-                    <div class="mt-6 grid grid-cols-2 md:grid-cols-3 gap-3">
-                        <For each={quickActions}>
+                    {/* 编程技能 */}
+                    <div class="mt-6">
+                      <div class="flex items-center gap-2 mb-3">
+                        <span class="text-xs font-medium uppercase tracking-wider text-gray-9">编程技能</span>
+                        <div class="flex-1 h-px bg-gray-6/40" />
+                      </div>
+                      <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        <For each={codingActions}>
                           {(action) => {
                             const Icon = action.icon;
                             return (
@@ -1356,6 +1364,34 @@ export default function SessionView(props: SessionViewProps) {
                           }}
                         </For>
                       </div>
+                    </div>
+
+                    {/* 通用技能 */}
+                    <div class="mt-5">
+                      <div class="flex items-center gap-2 mb-3">
+                        <span class="text-xs font-medium uppercase tracking-wider text-gray-9">通用技能</span>
+                        <div class="flex-1 h-px bg-gray-6/40" />
+                      </div>
+                      <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        <For each={generalActions}>
+                          {(action) => {
+                            const Icon = action.icon;
+                            return (
+                              <button
+                                type="button"
+                                class="flex items-center gap-3 rounded-xl border border-gray-6 bg-gray-1/70 px-4 py-3 text-sm text-gray-12 hover:bg-gray-2 hover:border-gray-7 transition-colors"
+                                onClick={() => void action.onClick?.()}
+                              >
+                                <div class="h-9 w-9 rounded-lg border border-gray-6 bg-gray-2 flex items-center justify-center text-gray-10">
+                                  <Icon size={18} />
+                                </div>
+                                <span class="text-left">{action.label}</span>
+                              </button>
+                            );
+                          }}
+                        </For>
+                      </div>
+                    </div>
                     </div>
                   </div>
                 </div>
